@@ -9,7 +9,7 @@ tarayıcı eklentisi.
 - Ayrıştırma doğrudan sayfanın HTML tablosundan yapıldığı için değerler birebir aktarılır.
 - Eklenen malzemeler eklentinin hafızasında tutulur; hepsi **tek bir kütüphane dosyasına** yazılır.
 
-Şu an **Firefox** için hazırdır; Chrome ve Edge desteği sonraki adımdır.
+Firefox, Google Chrome ve Microsoft Edge'de çalışır.
 
 ## Kullanım
 
@@ -63,16 +63,41 @@ Workbench → **Engineering Data** → **Engineering Data Sources** görünümü
 - Kalınlığa bağlı değerler, sertlik ve kompozisyon ANSYS'te karşılığı olmadığından aktarılmaz (Genel XML'de vardır).
 - Eşleme tablosu `extension/lib/ansys-writer.js` içindeki `FIELD_MAP`'tedir; yeni alan eklemek için oraya satır eklenir.
 
-## Firefox'a yükleme (geliştirme / deneme)
+## Kurulum
 
-1. Firefox adres çubuğuna `about:debugging#/runtime/this-firefox` yazın.
-2. **Geçici Eklenti Yükle… (Load Temporary Add-on…)** düğmesine basın.
-3. Bu depodaki `extension/manifest.json` dosyasını seçin.
-4. Düğme araç çubuğunda görünmüyorsa: yapboz (Uzantılar) simgesi → "MatWeb → ANSYS" → *Araç çubuğuna sabitle*.
+Eklenti **Firefox**, **Google Chrome** ve **Microsoft Edge**'de çalışır. Paketler `npm run build` ile `dist/` klasöründe
+üretilir: `Material_Converter-firefox-<sürüm>.zip` ve Chrome/Edge için `Material_Converter-chromium-<sürüm>.zip`.
 
-Geçici eklentiler Firefox kapanınca kaldırılır. Kalıcı kurulum için eklentinin Mozilla tarafından
-imzalanması gerekir ("listelenmemiş" imzalama ücretsizdir ve eklentiyi mağazada yayımlamaz):
-`npm run build:firefox` ile paket oluşturulup addons.mozilla.org geliştirici sayfasından imzalatılabilir.
+### Firefox
+
+1. Adres çubuğuna `about:debugging#/runtime/this-firefox` yazın.
+2. **Geçici Eklenti Yükle… (Load Temporary Add-on…)** düğmesine basıp Firefox zip dosyasını seçin
+   (geliştirirken doğrudan `extension/manifest.json` da seçilebilir).
+3. Düğme araç çubuğunda görünmüyorsa: yapboz (Uzantılar) simgesi → **Material Converter** → *Araç çubuğuna sabitle*.
+
+Geçici eklentiler Firefox kapanınca kaldırılır. Kalıcı kurulum için eklentinin Mozilla tarafından imzalanması gerekir
+("listelenmemiş" imzalama ücretsizdir ve eklentiyi mağazada yayımlamaz; addons.mozilla.org geliştirici sayfası).
+
+### Google Chrome
+
+1. Chrome/Edge zip dosyasını bir klasöre çıkarın (Chrome zip'i doğrudan yükleyemez; klasör gerekir).
+2. Adres çubuğuna `chrome://extensions` yazın, sağ üstten **Geliştirici modu**nu açın.
+3. **Paketlenmemiş öğe yükle** düğmesiyle çıkardığınız klasörü seçin.
+4. Yapboz (Uzantılar) simgesi → **Material Converter** → raptiye simgesiyle araç çubuğuna sabitleyin.
+
+### Microsoft Edge
+
+1. Chrome/Edge zip dosyasını bir klasöre çıkarın.
+2. Adres çubuğuna `edge://extensions` yazın, soldaki **Geliştirici modu**nu açın.
+3. **Paketlenmemiş öğeyi yükle** düğmesiyle çıkardığınız klasörü seçin.
+4. Uzantılar simgesi → **Material Converter** → *Araç çubuğunda göster*.
+
+Chrome ve Edge'de paketlenmemiş eklenti tarayıcı yeniden başlatıldığında da yüklü kalır (tarayıcı geliştirici modu
+eklentileri hakkında uyarı gösterebilir). Mağazada yayımlamak için: Chrome Web Store (tek seferlik geliştirici ücreti)
+veya Microsoft Edge Add-ons (ücretsiz); ikisi de aynı Chrome/Edge zip dosyasını kabul eder.
+
+Not: Tarayıcıda "Her dosyayı indirmeden önce nereye kaydedileceğini sor" ayarı açıksa ve kütüphane dosyası her
+güncellemede kayıt penceresi açıyorsa bu ayarı kapatın.
 
 ## Genel XML biçimi
 
@@ -110,11 +135,12 @@ imzalanması gerekir ("listelenmemiş" imzalama ücretsizdir ve eklentiyi mağaz
 
 ```
 extension/
-  manifest.json          Eklenti tanımı (Manifest V3)
+  manifest.json          Eklenti tanımı (Manifest V3; Firefox hâli — Chrome/Edge hâli derlemede üretilir)
   ui.css                 Ortak tasarım (renkler, düğmeler, etiketler; açık/koyu tema)
   popup.html/.js/.css    Araç çubuğu paneli: açık sayfadaki malzemeyi ekleme
   library.html/.js/.css  Kütüphane sayfası: Malzemeler ve Kurulum ve ayarlar sekmeleri
-  background.js          İndirme ve rozet
+  background.js          İndirme ve rozet (Firefox: arka plan sayfası, Chrome/Edge: service worker)
+  offscreen.html/.js     Yalnızca Chrome/Edge: service worker için indirilecek dosyanın adresini üretir
   lib/matweb-parser.js   MatWeb sayfasını DOM'dan okur (tarayıcıdan bağımsız)
   lib/xml-writer.js      Genel XML yazıcısı
   lib/ansys-writer.js    ANSYS Engineering Data (MatML 3.1) kütüphane yazıcısı ve alan eşlemesi
@@ -135,7 +161,11 @@ npm install            # yalnızca testler için (Playwright)
 npm test               # fixture'ları dönüştürüp beklenen XML ile karşılaştırır
 npm run test:update    # ayrıştırıcı bilerek değiştiyse beklenen çıktıları günceller
 npm run lint           # Mozilla web-ext ile eklenti denetimi
+npm run build          # dist/firefox, dist/chromium klasörleri ve yüklenebilir zip paketleri
 ```
+
+Kaynak tektir (`extension/`); `scripts/build.mjs` Chrome/Edge paketi için manifest'i dönüştürür (service worker,
+PNG simgeler, `offscreen` izni) ve Firefox paketinden yalnızca Chrome'a ait dosyaları çıkarır.
 
 ### Gerçek Firefox'ta uçtan uca test
 
@@ -147,6 +177,17 @@ düğmelere basar ve indirilen dosyaları kontrol eder. `www.matweb.com` istekle
 pip install selenium
 # Firefox ve geckodriver yoksa (Linux): micromamba create -p ./ffenv -c conda-forge firefox geckodriver
 FIREFOX_BIN=./ffenv/bin/firefox GECKODRIVER=./ffenv/bin/geckodriver xvfb-run -a python test/firefox/e2e.py
+```
+
+### Gerçek Chromium'da (Chrome/Edge paketi) uçtan uca test
+
+`test/chromium/e2e.mjs`, Chrome/Edge paketini gerçek Chromium'a yükler; sayfa okuma, service worker + offscreen belge ile
+indirme, alt klasöre/üzerine yazma, kütüphane sayfası ve kategorileri dener. Chromium'da araç çubuğu düğmesine otomatik
+tıklanamadığından test, eklentinin MatWeb için site izni eklenmiş bir kopyasını kullanır ve paneli ayrı sekmede açar.
+
+```bash
+npm run build -- --no-zip
+xvfb-run -a node test/chromium/e2e.mjs      # CHROMIUM_BIN ile tarayıcı yolu verilebilir
 ```
 
 Kendi kaydettiğiniz MatWeb sayfalarını `test/private/` klasörüne koyarsanız (git'e girmez) `npm test`

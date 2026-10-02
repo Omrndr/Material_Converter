@@ -1,15 +1,16 @@
 {
   "name": "material-converter",
-  "version": "0.1.0",
+  "version": "0.6.0",
   "private": true,
-  "description": "MatWeb malzeme veri sayfalarını XML'e dönüştüren tarayıcı eklentisi",
+  "description": "MatWeb malzeme sayfalarını ANSYS Engineering Data kütüphanesine aktaran tarayıcı eklentisi (Firefox, Chrome, Edge)",
   "license": "MIT",
   "type": "module",
   "scripts": {
     "test": "node test/run.mjs",
     "test:update": "node test/run.mjs --update",
+    "test:chromium": "node test/chromium/e2e.mjs",
     "lint": "npx -y web-ext lint -s extension",
-    "build:firefox": "npx -y web-ext build -s extension -a dist --overwrite-dest"
+    "build": "node scripts/build.mjs"
   },
   "devDependencies": {
     "playwright": "^1.56.1"
