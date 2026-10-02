@@ -1,5 +1,5 @@
 {
-  "name": "malzeme-donusturucu",
+  "name": "material-converter",
   "version": "0.1.0",
   "private": true,
   "description": "MatWeb malzeme veri sayfalarını XML'e dönüştüren tarayıcı eklentisi",

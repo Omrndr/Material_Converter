@@ -1,4 +1,4 @@
-# malzeme_donusturucu
+# Material_Converter
 
 MatWeb malzeme veri sayfalarını tek tıkla **ANSYS Workbench Engineering Data** kütüphanesine (XML) ekleyen
 tarayıcı eklentisi.

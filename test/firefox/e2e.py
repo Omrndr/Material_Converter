@@ -26,7 +26,7 @@ import fake_matweb
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 EXT = os.path.normpath(os.path.join(HERE, '..', '..', 'extension'))
-WIDGET = 'matweb-xml_malzeme-donusturucu-browser-action'
+WIDGET = 'matweb-xml_material-converter-browser-action'
 PORT = 8765
 PAC = ('data:text/plain,function FindProxyForURL(u,h){return h.indexOf("matweb.com")>=0?'
        '"PROXY 127.0.0.1:%d":"DIRECT";}' % PORT)
