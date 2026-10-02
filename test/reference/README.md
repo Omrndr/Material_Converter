@@ -1,8 +1,8 @@
-# Referans ANSYS dosyası
+# Reference ANSYS file
 
-`ansys-2023r1-steel_eglass_air.xml`, ANSYS Workbench 2023 R1 Engineering Data'dan dışa aktarılmış gerçek bir
-malzeme kütüphanesidir (Air, Epoxy E-Glass UD, Structural Steel). ANSYS yazıcısındaki (`extension/lib/ansys-writer.js`)
-özellik/parametre adları, birim tanımları ve sıcaklık tablosu biçimi bu dosya örnek alınarak yazılmıştır.
+`ansys-2023r1-steel_eglass_air.xml` is a real material library exported from ANSYS Workbench 2023 R1 Engineering Data
+(Air, Epoxy E-Glass UD, Structural Steel). The property and parameter names, unit definitions and the temperature-table
+layout used by the ANSYS writer (`extension/lib/ansys-writer.js`) follow this file.
 
-Kaynak: [ansys/pymaterials-manager](https://github.com/ansys/pymaterials-manager) — `tests/data/steel_eglass_air.xml`
-Lisans: MIT, Copyright (c) 2022 - 2026 Synopsys, Inc. and ANSYS, Inc.
+Source: [ansys/pymaterials-manager](https://github.com/ansys/pymaterials-manager) — `tests/data/steel_eglass_air.xml`
+License: MIT, Copyright (c) 2022 - 2026 Synopsys, Inc. and ANSYS, Inc.

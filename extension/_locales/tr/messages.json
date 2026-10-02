@@ -1,0 +1,494 @@
+{
+  "ext_name": {
+    "message": "Material Converter (MatWeb → ANSYS)"
+  },
+  "ext_description": {
+    "message": "MatWeb malzeme sayfalarını tek tıkla ANSYS Engineering Data kütüphanesine (XML) aktarır."
+  },
+  "action_title": {
+    "message": "Material Converter – malzemeyi ANSYS kütüphanesine ekle"
+  },
+  "brand_sub": {
+    "message": "MatWeb → ANSYS Engineering Data"
+  },
+  "downloads_folder": {
+    "message": "İndirilenler"
+  },
+  "default_file_name": {
+    "message": "MatWeb_ANSYS_Kutuphanesi.xml"
+  },
+  "selection_file_prefix": {
+    "message": "MatWeb_Secim_"
+  },
+  "error_prefix": {
+    "message": "Hata: $1"
+  },
+  "download_failed": {
+    "message": "İndirme başlatılamadı"
+  },
+  "default_material_name": {
+    "message": "MatWeb malzemesi"
+  },
+  "category": {
+    "message": "Kategori"
+  },
+  "n_materials": {
+    "message": "$1 malzeme"
+  },
+  "popup_open_page": {
+    "message": "Açık sayfa"
+  },
+  "popup_loading": {
+    "message": "Sayfa okunuyor…"
+  },
+  "popup_empty_lead": {
+    "message": "Bu sekmede bir MatWeb malzeme sayfası yok."
+  },
+  "popup_empty_step1_html": {
+    "message": "<a href=\"https://www.matweb.com/\" id=\"matweb-link\">matweb.com</a>'da bir malzemenin veri sayfasını açın."
+  },
+  "popup_empty_step2": {
+    "message": "Araç çubuğundaki bu düğmeye tıklayın."
+  },
+  "popup_empty_step3_html": {
+    "message": "<b>Kütüphaneye ekle</b>'ye basın."
+  },
+  "popup_nodata_lead": {
+    "message": "Bu MatWeb sayfasında özellik tablosu bulunamadı."
+  },
+  "popup_nodata_hint": {
+    "message": "Arama sonucu değil, bir malzemenin kendi veri sayfasını (DataSheet) açın."
+  },
+  "btn_add": {
+    "message": "Kütüphaneye ekle"
+  },
+  "btn_update": {
+    "message": "Kütüphanede güncelle"
+  },
+  "btn_export_one": {
+    "message": "Tüm veriyi ayrı XML olarak indir"
+  },
+  "btn_export_one_title": {
+    "message": "Sertlik, kompozisyon, koşullu değerler dahil sayfadaki tüm veri"
+  },
+  "popup_library": {
+    "message": "Kütüphane"
+  },
+  "popup_count_html": {
+    "message": "<span id=\"count\">0</span> malzeme"
+  },
+  "btn_manage_library": {
+    "message": "Kütüphaneyi yönet"
+  },
+  "popup_folder": {
+    "message": "Klasör: $1"
+  },
+  "auto_on_short": {
+    "message": "Her eklemede otomatik güncellenir"
+  },
+  "auto_off": {
+    "message": "Otomatik güncelleme kapalı"
+  },
+  "last_short": {
+    "message": "son: $1"
+  },
+  "change_location": {
+    "message": "Konumu değiştir"
+  },
+  "status_in_library": {
+    "message": "Kütüphanede · $1"
+  },
+  "status_not_in_library": {
+    "message": "Kütüphanede değil"
+  },
+  "props_count": {
+    "message": "ANSYS'e $1 özellik aktarılır"
+  },
+  "props_none": {
+    "message": "ANSYS'e aktarılacak özellik yok"
+  },
+  "toast_added": {
+    "message": "$1 kütüphaneye eklendi."
+  },
+  "toast_updated": {
+    "message": "$1 güncellendi."
+  },
+  "toast_ansys_updated": {
+    "message": "ANSYS dosyası güncellendi."
+  },
+  "toast_downloaded_path": {
+    "message": "İndirildi: $1"
+  },
+  "warn_overview": {
+    "message": "Seri özeti (Overview) sayfası: değerler belirli bir kaliteye değil, serinin ortalamasına aittir."
+  },
+  "warn_no_elasticity": {
+    "message": "Elastisite (E ve ν) yok: ANSYS’te gerilme analizi için kullanılamaz."
+  },
+  "warn_no_density": {
+    "message": "Yoğunluk yok."
+  },
+  "prop_density": {
+    "message": "Yoğunluk"
+  },
+  "prop_elasticity": {
+    "message": "Elastisite (E, ν)"
+  },
+  "prop_tensile_yield": {
+    "message": "Akma dayanımı"
+  },
+  "prop_tensile_ultimate": {
+    "message": "Çekme dayanımı"
+  },
+  "prop_compressive_yield": {
+    "message": "Basma akma dayanımı"
+  },
+  "prop_compressive_ultimate": {
+    "message": "Basma dayanımı"
+  },
+  "prop_cte": {
+    "message": "Isıl genleşme"
+  },
+  "prop_specific_heat": {
+    "message": "Özgül ısı"
+  },
+  "prop_conductivity": {
+    "message": "Isıl iletkenlik"
+  },
+  "prop_resistivity": {
+    "message": "Elektriksel direnç"
+  },
+  "lib_title": {
+    "message": "Material Converter – Kütüphane"
+  },
+  "tab_materials": {
+    "message": "Malzemeler"
+  },
+  "tab_setup": {
+    "message": "Kurulum ve ayarlar"
+  },
+  "lib_heading": {
+    "message": "Malzeme kütüphanesi"
+  },
+  "lib_intro_html": {
+    "message": "ANSYS'e aktarılan malzemeleriniz. Yeni malzeme eklemek için MatWeb'de bir malzeme sayfası açıp araç çubuğundaki <b>Material Converter</b> düğmesine tıklayın."
+  },
+  "file_card_label": {
+    "message": "ANSYS kütüphane dosyası"
+  },
+  "btn_update_now": {
+    "message": "Şimdi güncelle"
+  },
+  "auto_on_long": {
+    "message": "Malzeme eklenip kaldırıldıkça otomatik güncellenir"
+  },
+  "last_updated": {
+    "message": "Son güncelleme: $1"
+  },
+  "not_created": {
+    "message": "Henüz oluşturulmadı"
+  },
+  "categories": {
+    "message": "Kategoriler"
+  },
+  "btn_new": {
+    "message": "Yeni"
+  },
+  "new_category_title": {
+    "message": "Yeni kategori oluştur"
+  },
+  "sidebar_note_html": {
+    "message": "Malzemeleri listeden seçip <b>Kategoriye ekle</b> ile gruplayın. Kategori dosyaları otomatik indirilmez: kategoriyi açıp <b>Kategoriyi ANSYS kütüphanesi olarak indir</b>'e bastığınızda, kategorinin adını taşıyan ayrı bir dosya oluşur."
+  },
+  "all_materials": {
+    "message": "Tüm malzemeler"
+  },
+  "as_ansys_library": {
+    "message": "ANSYS kütüphanesi olarak:"
+  },
+  "btn_write_group": {
+    "message": "Kategoriyi ANSYS kütüphanesi olarak indir"
+  },
+  "btn_rename": {
+    "message": "Yeniden adlandır"
+  },
+  "btn_delete": {
+    "message": "Sil"
+  },
+  "search_placeholder": {
+    "message": "Malzeme veya kategori ara"
+  },
+  "sort_label": {
+    "message": "Sırala"
+  },
+  "sort_added_desc": {
+    "message": "Eklenme tarihi · yeni → eski"
+  },
+  "sort_added_asc": {
+    "message": "Eklenme tarihi · eski → yeni"
+  },
+  "sort_name_asc": {
+    "message": "Ad · A → Z"
+  },
+  "sort_name_desc": {
+    "message": "Ad · Z → A"
+  },
+  "sort_cat_asc": {
+    "message": "Kategori · A → Z"
+  },
+  "sort_cat_desc": {
+    "message": "Kategori · Z → A"
+  },
+  "selection_count_html": {
+    "message": "<b id=\"selection-count\">0</b> malzeme seçildi"
+  },
+  "btn_assign": {
+    "message": "Kategoriye ekle"
+  },
+  "btn_unassign": {
+    "message": "Bu kategoriden çıkar"
+  },
+  "btn_download_selected": {
+    "message": "Ayrı XML olarak indir"
+  },
+  "btn_download_selected_title": {
+    "message": "Yalnızca seçilen malzemeleri içeren ayrı bir ANSYS dosyası"
+  },
+  "btn_remove": {
+    "message": "Kütüphaneden kaldır"
+  },
+  "btn_clear_selection": {
+    "message": "Seçimi kaldır"
+  },
+  "select_all_title": {
+    "message": "Listelenenlerin tümünü seç"
+  },
+  "col_material": {
+    "message": "Malzeme"
+  },
+  "col_status": {
+    "message": "ANSYS durumu"
+  },
+  "col_added": {
+    "message": "Eklenme"
+  },
+  "empty_heading": {
+    "message": "Kütüphaneniz boş"
+  },
+  "empty_step1_html": {
+    "message": "<a href=\"https://www.matweb.com/\" target=\"_blank\" rel=\"noopener\">matweb.com</a>'da bir malzemenin veri sayfasını açın."
+  },
+  "empty_step2_html": {
+    "message": "Araç çubuğundaki <b>Material Converter</b> düğmesine tıklayın."
+  },
+  "empty_step3_html": {
+    "message": "<b>Kütüphaneye ekle</b>'ye basın. Malzeme burada listelenir ve ANSYS dosyasına yazılır."
+  },
+  "no_match": {
+    "message": "Aramanızla eşleşen malzeme yok."
+  },
+  "group_empty": {
+    "message": "Bu kategori boş. \"Tüm malzemeler\"den malzeme seçip \"Kategoriye ekle\" ile ekleyin."
+  },
+  "setup_intro": {
+    "message": "Kütüphane dosyasının nereye kaydedileceğini seçin ve ANSYS'e bir kez tanıtın. Sonrasında eklediğiniz her malzeme aynı dosyaya yazılır."
+  },
+  "setup_step1": {
+    "message": "Kütüphane dosyasının konumu"
+  },
+  "setup_notice_html": {
+    "message": "Tarayıcılar, güvenlik nedeniyle eklentilerin yalnızca <b>İndirilenler</b> klasörünün içine yazmasına izin verir. Bu yüzden konum İndirilenler altında bir alt klasör olarak seçilir."
+  },
+  "label_subfolder": {
+    "message": "Alt klasör"
+  },
+  "folder_placeholder": {
+    "message": "ör. ANSYS/Malzemeler — boş bırakılırsa doğrudan İndirilenler"
+  },
+  "label_file_name": {
+    "message": "Dosya adı"
+  },
+  "auto_label": {
+    "message": "Malzeme eklendiğinde veya kaldırıldığında ana kütüphane dosyasını otomatik güncelle (önerilir; kategori dosyaları hariç)"
+  },
+  "path_line": {
+    "message": "Dosya şuraya kaydedilecek:"
+  },
+  "btn_save_settings": {
+    "message": "Ayarları kaydet"
+  },
+  "setup_step2": {
+    "message": "ANSYS'e tanıtın (yalnızca bir kez)"
+  },
+  "setup_s2_1_html": {
+    "message": "Yukarıdaki ayarları kaydettikten sonra <b>Malzemeler</b> sekmesinde <b>Şimdi güncelle</b>'ye basın; dosya oluşur."
+  },
+  "setup_s2_2_html": {
+    "message": "ANSYS Workbench'te <b>Engineering Data</b>'yı açın, araç çubuğundan <b>Engineering Data Sources</b> görünümüne geçin."
+  },
+  "setup_s2_3_html": {
+    "message": "Listenin en altındaki boş satırın <b>Location</b> sütunundaki <b>…</b> düğmesiyle şu dosyayı seçin:"
+  },
+  "setup_s2_4": {
+    "message": "Bundan sonra eklediğiniz malzemeler aynı dosyaya yazılır; ANSYS'te kütüphaneyi yenilemeniz yeterlidir."
+  },
+  "setup_s2_5_html": {
+    "message": "<b>Kategoriler</b> istediğiniz zaman, kategoriyi açıp <b>Kategoriyi ANSYS kütüphanesi olarak indir</b>'e basarak aynı klasöre kendi adıyla ayrı bir dosya olarak indirilir (ör. <code>Alüminyum alaşımları.xml</code>); otomatik indirilmez. Bu dosyaları da aynı yolla ANSYS'e ayrı kütüphaneler olarak ekleyebilirsiniz."
+  },
+  "setup_note_html": {
+    "message": "Menü adları ANSYS sürümüne göre küçük farklılıklar gösterebilir. Dosyayı tek seferlik içe aktarmak için <i>File → Import Engineering Data</i> da kullanılabilir."
+  },
+  "setup_step3": {
+    "message": "ANSYS'e neler aktarılır?"
+  },
+  "setup_s3_html": {
+    "message": "Yoğunluk, elastisite (E ve ν), akma ve çekme dayanımı, basma dayanımları, ısıl genleşme (sıcaklık tablosu ve referans sıcaklığıyla), özgül ısı, ısıl iletkenlik ve elektriksel direnç; SI birimlerine çevrilerek. Sertlik, kimyasal bileşim ve kalınlığa bağlı değerlerin ANSYS'te karşılığı yoktur; bunlar için malzeme panelindeki <b>Tüm veriyi ayrı XML olarak indir</b> seçeneğini kullanın."
+  },
+  "dialog_assign_title": {
+    "message": "Kategoriye ekle"
+  },
+  "assign_count_html": {
+    "message": "<b id=\"assign-count\">0</b> malzeme seçili kategoriye eklenecek."
+  },
+  "assign_new": {
+    "message": "Yeni kategori oluştur"
+  },
+  "assign_new_placeholder": {
+    "message": "Kategori adı, ör. Alüminyum alaşımları"
+  },
+  "btn_cancel": {
+    "message": "Vazgeç"
+  },
+  "btn_add_short": {
+    "message": "Ekle"
+  },
+  "btn_save": {
+    "message": "Kaydet"
+  },
+  "name_dialog_new": {
+    "message": "Yeni kategori"
+  },
+  "name_dialog_rename": {
+    "message": "Kategoriyi yeniden adlandır"
+  },
+  "name_label": {
+    "message": "Kategori adı (ANSYS kütüphane dosyasının adı da bu olur)"
+  },
+  "status_attention": {
+    "message": "$1 özellik · dikkat"
+  },
+  "status_ready": {
+    "message": "Hazır · $1 özellik"
+  },
+  "props_tooltip": {
+    "message": "ANSYS'e aktarılan özellikler:"
+  },
+  "select_material_aria": {
+    "message": "$1 seç"
+  },
+  "open_on_matweb": {
+    "message": "MatWeb sayfasını yeni sekmede aç"
+  },
+  "remove_aria": {
+    "message": "$1 kütüphaneden kaldır"
+  },
+  "confirm_remove_one": {
+    "message": "\"$1\" kütüphaneden (ve tüm kategorilerden) kaldırılsın mı?"
+  },
+  "confirm_remove_many": {
+    "message": "$1 malzeme kütüphaneden (ve tüm kategorilerden) kaldırılsın mı?"
+  },
+  "group_not_downloaded": {
+    "message": "Henüz indirilmedi"
+  },
+  "group_stale": {
+    "message": "İndirilen dosya güncel değil"
+  },
+  "group_stale_title": {
+    "message": "Kategori son indirmeden sonra değişti. Güncel hâli için \"Kategoriyi ANSYS kütüphanesi olarak indir\"e basın."
+  },
+  "group_current": {
+    "message": "Güncel · $1"
+  },
+  "err_name_empty": {
+    "message": "Bir ad yazın."
+  },
+  "err_name_taken": {
+    "message": "Bu adla bir kategori zaten var."
+  },
+  "err_pick_category": {
+    "message": "Bir kategori seçin."
+  },
+  "toast_group_created_with": {
+    "message": "\"$2\" kategorisi $1 malzemeyle oluşturuldu."
+  },
+  "toast_added_to_group": {
+    "message": "$1 malzeme \"$2\" kategorisine eklendi."
+  },
+  "toast_removed_from_group": {
+    "message": "$1 malzeme \"$2\" kategorisinden çıkarıldı (kütüphanede kalmaya devam eder)."
+  },
+  "toast_group_created": {
+    "message": "\"$1\" kategorisi oluşturuldu. \"Tüm malzemeler\"den malzeme seçip \"Kategoriye ekle\" ile doldurun."
+  },
+  "toast_group_renamed": {
+    "message": "Kategori \"$1\" olarak adlandırıldı."
+  },
+  "toast_old_file_remains": {
+    "message": "Eski dosya ($1) diskte kalır; yeni adla indirmek için \"indir\"e basın."
+  },
+  "confirm_delete_group": {
+    "message": "\"$1\" kategorisi silinsin mi?\n\nMalzemeler kütüphanede kalır. Daha önce indirilmiş dosyası ($2) diskte kalır."
+  },
+  "toast_group_deleted": {
+    "message": "\"$1\" kategorisi silindi."
+  },
+  "toast_group_downloaded": {
+    "message": "\"$1\" ANSYS kütüphanesi olarak indirildi: $2"
+  },
+  "toast_removed": {
+    "message": "$1 malzeme kütüphaneden kaldırıldı."
+  },
+  "toast_main_updated": {
+    "message": "Ana ANSYS dosyası güncellendi."
+  },
+  "toast_selection_downloaded": {
+    "message": "$1 malzemelik dosya indirildi: $2"
+  },
+  "toast_settings_saved": {
+    "message": "Ayarlar kaydedildi. Dosyayı oluşturmak için Malzemeler sekmesinde \"Şimdi güncelle\"ye basın."
+  },
+  "toast_library_written": {
+    "message": "ANSYS kütüphane dosyası güncellendi: $1"
+  },
+  "n_materials_one": {
+    "message": "1 malzeme"
+  },
+  "props_count_one": {
+    "message": "ANSYS'e 1 özellik aktarılır"
+  },
+  "status_attention_one": {
+    "message": "1 özellik · dikkat"
+  },
+  "status_ready_one": {
+    "message": "Hazır · 1 özellik"
+  },
+  "toast_removed_one": {
+    "message": "1 malzeme kütüphaneden kaldırıldı."
+  },
+  "confirm_remove_many_one": {
+    "message": "1 malzeme kütüphaneden (ve tüm kategorilerden) kaldırılsın mı?"
+  },
+  "toast_selection_downloaded_one": {
+    "message": "1 malzemelik dosya indirildi: $1"
+  },
+  "toast_group_created_with_one": {
+    "message": "\"$1\" kategorisi 1 malzemeyle oluşturuldu."
+  },
+  "toast_added_to_group_one": {
+    "message": "1 malzeme \"$1\" kategorisine eklendi."
+  },
+  "toast_removed_from_group_one": {
+    "message": "1 malzeme \"$1\" kategorisinden çıkarıldı (kütüphanede kalmaya devam eder)."
+  }
+}

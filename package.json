@@ -1,8 +1,8 @@
 {
   "name": "material-converter",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "private": true,
-  "description": "MatWeb malzeme sayfalarını ANSYS Engineering Data kütüphanesine aktaran tarayıcı eklentisi (Firefox, Chrome, Edge)",
+  "description": "Browser extension that turns MatWeb material data sheets into an ANSYS Engineering Data library (Firefox, Chrome, Edge)",
   "license": "MIT",
   "type": "module",
   "scripts": {

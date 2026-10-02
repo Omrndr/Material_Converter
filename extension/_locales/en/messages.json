@@ -1,0 +1,494 @@
+{
+  "ext_name": {
+    "message": "Material Converter (MatWeb → ANSYS)"
+  },
+  "ext_description": {
+    "message": "Adds material data sheets from MatWeb to an ANSYS Engineering Data library (XML) in one click."
+  },
+  "action_title": {
+    "message": "Material Converter – add this material to your ANSYS library"
+  },
+  "brand_sub": {
+    "message": "MatWeb → ANSYS Engineering Data"
+  },
+  "downloads_folder": {
+    "message": "Downloads"
+  },
+  "default_file_name": {
+    "message": "MatWeb_ANSYS_Library.xml"
+  },
+  "selection_file_prefix": {
+    "message": "MatWeb_Selection_"
+  },
+  "error_prefix": {
+    "message": "Error: $1"
+  },
+  "download_failed": {
+    "message": "The download could not be started"
+  },
+  "default_material_name": {
+    "message": "MatWeb material"
+  },
+  "category": {
+    "message": "Category"
+  },
+  "n_materials": {
+    "message": "$1 materials"
+  },
+  "popup_open_page": {
+    "message": "Current page"
+  },
+  "popup_loading": {
+    "message": "Reading page…"
+  },
+  "popup_empty_lead": {
+    "message": "This tab doesn't show a MatWeb material page."
+  },
+  "popup_empty_step1_html": {
+    "message": "Open a material data sheet on <a href=\"https://www.matweb.com/\" id=\"matweb-link\">matweb.com</a>."
+  },
+  "popup_empty_step2": {
+    "message": "Click this toolbar button."
+  },
+  "popup_empty_step3_html": {
+    "message": "Press <b>Add to library</b>."
+  },
+  "popup_nodata_lead": {
+    "message": "No property table was found on this MatWeb page."
+  },
+  "popup_nodata_hint": {
+    "message": "Open a material's own data sheet, not a search result."
+  },
+  "btn_add": {
+    "message": "Add to library"
+  },
+  "btn_update": {
+    "message": "Update in library"
+  },
+  "btn_export_one": {
+    "message": "Download all data as a separate XML"
+  },
+  "btn_export_one_title": {
+    "message": "Everything on the page, including hardness, composition and conditional values"
+  },
+  "popup_library": {
+    "message": "Library"
+  },
+  "popup_count_html": {
+    "message": "<span id=\"count\">0</span> materials"
+  },
+  "btn_manage_library": {
+    "message": "Manage library"
+  },
+  "popup_folder": {
+    "message": "Folder: $1"
+  },
+  "auto_on_short": {
+    "message": "Updated automatically on every add"
+  },
+  "auto_off": {
+    "message": "Automatic update is off"
+  },
+  "last_short": {
+    "message": "last: $1"
+  },
+  "change_location": {
+    "message": "Change location"
+  },
+  "status_in_library": {
+    "message": "In library · $1"
+  },
+  "status_not_in_library": {
+    "message": "Not in library"
+  },
+  "props_count": {
+    "message": "$1 properties go to ANSYS"
+  },
+  "props_none": {
+    "message": "No properties to transfer to ANSYS"
+  },
+  "toast_added": {
+    "message": "$1 was added to the library."
+  },
+  "toast_updated": {
+    "message": "$1 was updated."
+  },
+  "toast_ansys_updated": {
+    "message": "ANSYS file updated."
+  },
+  "toast_downloaded_path": {
+    "message": "Downloaded: $1"
+  },
+  "warn_overview": {
+    "message": "Series overview page: the values are averages of the whole series, not of a specific grade."
+  },
+  "warn_no_elasticity": {
+    "message": "No elasticity (E and ν): cannot be used for stress analysis in ANSYS."
+  },
+  "warn_no_density": {
+    "message": "No density."
+  },
+  "prop_density": {
+    "message": "Density"
+  },
+  "prop_elasticity": {
+    "message": "Elasticity (E, ν)"
+  },
+  "prop_tensile_yield": {
+    "message": "Tensile yield strength"
+  },
+  "prop_tensile_ultimate": {
+    "message": "Ultimate tensile strength"
+  },
+  "prop_compressive_yield": {
+    "message": "Compressive yield strength"
+  },
+  "prop_compressive_ultimate": {
+    "message": "Compressive strength"
+  },
+  "prop_cte": {
+    "message": "Thermal expansion"
+  },
+  "prop_specific_heat": {
+    "message": "Specific heat"
+  },
+  "prop_conductivity": {
+    "message": "Thermal conductivity"
+  },
+  "prop_resistivity": {
+    "message": "Electrical resistivity"
+  },
+  "lib_title": {
+    "message": "Material Converter – Library"
+  },
+  "tab_materials": {
+    "message": "Materials"
+  },
+  "tab_setup": {
+    "message": "Setup & settings"
+  },
+  "lib_heading": {
+    "message": "Material library"
+  },
+  "lib_intro_html": {
+    "message": "Your materials for ANSYS. To add one, open a material page on MatWeb and click the <b>Material Converter</b> button in the toolbar."
+  },
+  "file_card_label": {
+    "message": "ANSYS library file"
+  },
+  "btn_update_now": {
+    "message": "Update now"
+  },
+  "auto_on_long": {
+    "message": "Updated automatically as materials are added or removed"
+  },
+  "last_updated": {
+    "message": "Last update: $1"
+  },
+  "not_created": {
+    "message": "Not created yet"
+  },
+  "categories": {
+    "message": "Categories"
+  },
+  "btn_new": {
+    "message": "New"
+  },
+  "new_category_title": {
+    "message": "Create a new category"
+  },
+  "sidebar_note_html": {
+    "message": "Select materials in the list and use <b>Add to category</b> to group them. Category files are not downloaded automatically: open a category and press <b>Download category as ANSYS library</b> to create a separate file named after it."
+  },
+  "all_materials": {
+    "message": "All materials"
+  },
+  "as_ansys_library": {
+    "message": "As ANSYS library:"
+  },
+  "btn_write_group": {
+    "message": "Download category as ANSYS library"
+  },
+  "btn_rename": {
+    "message": "Rename"
+  },
+  "btn_delete": {
+    "message": "Delete"
+  },
+  "search_placeholder": {
+    "message": "Search materials or categories"
+  },
+  "sort_label": {
+    "message": "Sort"
+  },
+  "sort_added_desc": {
+    "message": "Date added · newest first"
+  },
+  "sort_added_asc": {
+    "message": "Date added · oldest first"
+  },
+  "sort_name_asc": {
+    "message": "Name · A → Z"
+  },
+  "sort_name_desc": {
+    "message": "Name · Z → A"
+  },
+  "sort_cat_asc": {
+    "message": "Category · A → Z"
+  },
+  "sort_cat_desc": {
+    "message": "Category · Z → A"
+  },
+  "selection_count_html": {
+    "message": "<b id=\"selection-count\">0</b> selected"
+  },
+  "btn_assign": {
+    "message": "Add to category"
+  },
+  "btn_unassign": {
+    "message": "Remove from this category"
+  },
+  "btn_download_selected": {
+    "message": "Download as separate XML"
+  },
+  "btn_download_selected_title": {
+    "message": "A separate ANSYS file containing only the selected materials"
+  },
+  "btn_remove": {
+    "message": "Remove from library"
+  },
+  "btn_clear_selection": {
+    "message": "Clear selection"
+  },
+  "select_all_title": {
+    "message": "Select all listed"
+  },
+  "col_material": {
+    "message": "Material"
+  },
+  "col_status": {
+    "message": "ANSYS status"
+  },
+  "col_added": {
+    "message": "Added"
+  },
+  "empty_heading": {
+    "message": "Your library is empty"
+  },
+  "empty_step1_html": {
+    "message": "Open a material data sheet on <a href=\"https://www.matweb.com/\" target=\"_blank\" rel=\"noopener\">matweb.com</a>."
+  },
+  "empty_step2_html": {
+    "message": "Click the <b>Material Converter</b> button in the toolbar."
+  },
+  "empty_step3_html": {
+    "message": "Press <b>Add to library</b>. The material appears here and is written to the ANSYS file."
+  },
+  "no_match": {
+    "message": "No materials match your search."
+  },
+  "group_empty": {
+    "message": "This category is empty. Select materials under “All materials” and use “Add to category”."
+  },
+  "setup_intro": {
+    "message": "Choose where the library file is saved and register it in ANSYS once. Every material you add afterwards is written to the same file."
+  },
+  "setup_step1": {
+    "message": "Library file location"
+  },
+  "setup_notice_html": {
+    "message": "For security reasons, browsers only let extensions write inside the <b>Downloads</b> folder, so the location is chosen as a subfolder of Downloads."
+  },
+  "label_subfolder": {
+    "message": "Subfolder"
+  },
+  "folder_placeholder": {
+    "message": "e.g. ANSYS/Materials — leave empty to use Downloads itself"
+  },
+  "label_file_name": {
+    "message": "File name"
+  },
+  "auto_label": {
+    "message": "Update the main library file automatically when materials are added or removed (recommended; category files excluded)"
+  },
+  "path_line": {
+    "message": "The file will be saved to:"
+  },
+  "btn_save_settings": {
+    "message": "Save settings"
+  },
+  "setup_step2": {
+    "message": "Register it in ANSYS (only once)"
+  },
+  "setup_s2_1_html": {
+    "message": "After saving the settings above, press <b>Update now</b> on the <b>Materials</b> tab to create the file."
+  },
+  "setup_s2_2_html": {
+    "message": "In ANSYS Workbench, open <b>Engineering Data</b> and switch to the <b>Engineering Data Sources</b> view."
+  },
+  "setup_s2_3_html": {
+    "message": "Use the <b>…</b> button in the <b>Location</b> column of the empty last row to select this file:"
+  },
+  "setup_s2_4": {
+    "message": "From then on, new materials are written to the same file; just refresh the library in ANSYS."
+  },
+  "setup_s2_5_html": {
+    "message": "<b>Categories</b> are downloaded on demand — open a category and press <b>Download category as ANSYS library</b> — as separate files named after the category (e.g. <code>Aluminium alloys.xml</code>). They are never downloaded automatically. Add them to ANSYS the same way, as separate libraries."
+  },
+  "setup_note_html": {
+    "message": "Menu names may differ slightly between ANSYS versions. For a one-time import you can also use <i>File → Import Engineering Data</i>."
+  },
+  "setup_step3": {
+    "message": "What is transferred to ANSYS?"
+  },
+  "setup_s3_html": {
+    "message": "Density, elasticity (E and ν), tensile yield and ultimate strength, compressive strengths, thermal expansion (with temperature table and reference temperature), specific heat, thermal conductivity and electrical resistivity — converted to SI units. Hardness, chemical composition and thickness-dependent values have no ANSYS equivalent; for those, use <b>Download all data as a separate XML</b> in the toolbar panel."
+  },
+  "dialog_assign_title": {
+    "message": "Add to category"
+  },
+  "assign_count_html": {
+    "message": "<b id=\"assign-count\">0</b> selected materials will be added to the chosen category."
+  },
+  "assign_new": {
+    "message": "Create a new category"
+  },
+  "assign_new_placeholder": {
+    "message": "Category name, e.g. Aluminium alloys"
+  },
+  "btn_cancel": {
+    "message": "Cancel"
+  },
+  "btn_add_short": {
+    "message": "Add"
+  },
+  "btn_save": {
+    "message": "Save"
+  },
+  "name_dialog_new": {
+    "message": "New category"
+  },
+  "name_dialog_rename": {
+    "message": "Rename category"
+  },
+  "name_label": {
+    "message": "Category name (also the name of its ANSYS library file)"
+  },
+  "status_attention": {
+    "message": "$1 properties · attention"
+  },
+  "status_ready": {
+    "message": "Ready · $1 properties"
+  },
+  "props_tooltip": {
+    "message": "Properties transferred to ANSYS:"
+  },
+  "select_material_aria": {
+    "message": "Select $1"
+  },
+  "open_on_matweb": {
+    "message": "Open the MatWeb page in a new tab"
+  },
+  "remove_aria": {
+    "message": "Remove $1 from the library"
+  },
+  "confirm_remove_one": {
+    "message": "Remove “$1” from the library (and from all categories)?"
+  },
+  "confirm_remove_many": {
+    "message": "Remove $1 materials from the library (and from all categories)?"
+  },
+  "group_not_downloaded": {
+    "message": "Not downloaded yet"
+  },
+  "group_stale": {
+    "message": "Downloaded file is out of date"
+  },
+  "group_stale_title": {
+    "message": "The category changed after the last download. Press “Download category as ANSYS library” to get the current version."
+  },
+  "group_current": {
+    "message": "Up to date · $1"
+  },
+  "err_name_empty": {
+    "message": "Enter a name."
+  },
+  "err_name_taken": {
+    "message": "A category with this name already exists."
+  },
+  "err_pick_category": {
+    "message": "Choose a category."
+  },
+  "toast_group_created_with": {
+    "message": "Category “$2” created with $1 materials."
+  },
+  "toast_added_to_group": {
+    "message": "$1 materials added to “$2”."
+  },
+  "toast_removed_from_group": {
+    "message": "$1 materials removed from “$2” (they stay in the library)."
+  },
+  "toast_group_created": {
+    "message": "Category “$1” created. Select materials under “All materials” and use “Add to category”."
+  },
+  "toast_group_renamed": {
+    "message": "Category renamed to “$1”."
+  },
+  "toast_old_file_remains": {
+    "message": "The old file ($1) stays on disk; press “Download” to save it under the new name."
+  },
+  "confirm_delete_group": {
+    "message": "Delete the category “$1”?\n\nThe materials stay in the library. A previously downloaded file ($2) stays on disk."
+  },
+  "toast_group_deleted": {
+    "message": "Category “$1” deleted."
+  },
+  "toast_group_downloaded": {
+    "message": "“$1” downloaded as an ANSYS library: $2"
+  },
+  "toast_removed": {
+    "message": "$1 materials removed from the library."
+  },
+  "toast_main_updated": {
+    "message": "Main ANSYS file updated."
+  },
+  "toast_selection_downloaded": {
+    "message": "File with $1 materials downloaded: $2"
+  },
+  "toast_settings_saved": {
+    "message": "Settings saved. Press “Update now” on the Materials tab to create the file."
+  },
+  "toast_library_written": {
+    "message": "ANSYS library file updated: $1"
+  },
+  "n_materials_one": {
+    "message": "1 material"
+  },
+  "props_count_one": {
+    "message": "1 property goes to ANSYS"
+  },
+  "status_attention_one": {
+    "message": "1 property · attention"
+  },
+  "status_ready_one": {
+    "message": "Ready · 1 property"
+  },
+  "toast_removed_one": {
+    "message": "1 material removed from the library."
+  },
+  "confirm_remove_many_one": {
+    "message": "Remove 1 material from the library (and from all categories)?"
+  },
+  "toast_selection_downloaded_one": {
+    "message": "File with 1 material downloaded: $1"
+  },
+  "toast_group_created_with_one": {
+    "message": "Category “$1” created with 1 material."
+  },
+  "toast_added_to_group_one": {
+    "message": "1 material added to “$1”."
+  },
+  "toast_removed_from_group_one": {
+    "message": "1 material removed from “$1” (it stays in the library)."
+  }
+}

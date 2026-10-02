@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Material Converter – Kütüphane</title>
+  <title data-i18n="lib_title">Material Converter – Library</title>
   <link rel="icon" href="icons/icon.svg">
   <link rel="stylesheet" href="ui.css">
   <link rel="stylesheet" href="library.css">
@@ -15,98 +15,96 @@
         <img src="icons/icon.svg" alt="" width="32" height="32">
         <div>
           <div class="brand-title">Material Converter</div>
-          <div class="brand-sub">MatWeb → ANSYS Engineering Data</div>
+          <div class="brand-sub" data-i18n="brand_sub">MatWeb → ANSYS Engineering Data</div>
         </div>
       </div>
       <nav class="tabs" role="tablist">
-        <a href="#malzemeler" class="tab" data-view="malzemeler" role="tab">Malzemeler <span id="tab-count" class="tab-count"></span></a>
-        <a href="#kurulum" class="tab" data-view="kurulum" role="tab">Kurulum ve ayarlar</a>
+        <a href="#materials" class="tab" data-view="materials" role="tab"><span data-i18n="tab_materials">Materials</span> <span id="tab-count" class="tab-count"></span></a>
+        <a href="#setup" class="tab" data-view="setup" role="tab" data-i18n="tab_setup">Setup &amp; settings</a>
       </nav>
     </div>
   </header>
 
   <main>
     <!-- ============ MALZEMELER ============ -->
-    <section id="view-malzemeler" class="view">
+    <section id="view-materials" class="view">
       <div class="page-head">
         <div>
-          <h1>Malzeme kütüphanesi</h1>
-          <p class="muted">ANSYS'e aktarılan malzemeleriniz. Yeni malzeme eklemek için MatWeb'de bir malzeme sayfası açıp
-            araç çubuğundaki <b>Material Converter</b> düğmesine tıklayın.</p>
+          <h1 data-i18n="lib_heading">Material library</h1>
+          <p class="muted" data-i18n-html="lib_intro_html"></p>
         </div>
       </div>
 
       <div class="card file-card">
         <span class="file-icon" data-icon="file"></span>
         <div class="file-body">
-          <div class="eyebrow">ANSYS kütüphane dosyası</div>
+          <div class="eyebrow" data-i18n="file_card_label">ANSYS library file</div>
           <code id="file-path"></code>
           <div id="file-meta" class="muted"></div>
         </div>
         <div class="file-actions">
-          <button id="write-library" class="btn" data-icon="refresh">Şimdi güncelle</button>
-          <a href="#kurulum" class="btn ghost" data-icon="settings">Konumu değiştir</a>
+          <button id="write-library" class="btn" data-icon="refresh" data-i18n="btn_update_now">Update now</button>
+          <a href="#setup" class="btn ghost" data-icon="settings" data-i18n="change_location">Change location</a>
         </div>
       </div>
 
       <div class="layout">
         <aside class="card sidebar">
           <div class="sidebar-head">
-            <span class="eyebrow">Kategoriler</span>
-            <button id="new-group" class="btn ghost small-btn" data-icon="plus" title="Yeni kategori oluştur">Yeni</button>
+            <span class="eyebrow" data-i18n="categories">Categories</span>
+            <button id="new-group" class="btn ghost small-btn" data-icon="plus" data-i18n="btn_new" data-i18n-title="new_category_title">New</button>
           </div>
           <ul id="group-list" class="group-list"></ul>
-          <p class="muted small sidebar-note">Malzemeleri listeden seçip <b>Kategoriye ekle</b> ile gruplayın. Kategori dosyaları otomatik indirilmez:
-            kategoriyi açıp <b>Kategoriyi ANSYS kütüphanesi olarak indir</b>'e bastığınızda, kategorinin adını taşıyan ayrı bir dosya oluşur.</p>
+          <p class="muted small sidebar-note" data-i18n-html="sidebar_note_html"></p>
         </aside>
         <div class="card list-card">
           <div id="group-head" class="group-head" hidden>
             <span class="group-icon" data-icon="folder"></span>
             <div class="group-body">
-              <div class="eyebrow">Kategori</div>
+              <div class="eyebrow" data-i18n="category">Category</div>
               <h2 id="group-title"></h2>
-              <div class="muted small">ANSYS kütüphanesi olarak: <code id="group-path"></code> <span id="group-meta"></span></div>
+              <div class="muted small"><span data-i18n="as_ansys_library">As ANSYS library:</span> <code id="group-path"></code> <span id="group-meta"></span></div>
             </div>
             <div class="group-actions">
-              <button id="write-group" class="btn primary" data-icon="download">Kategoriyi ANSYS kütüphanesi olarak indir</button>
-              <button id="rename-group" class="btn ghost" data-icon="edit">Yeniden adlandır</button>
-              <button id="delete-group" class="btn ghost danger-text" data-icon="trash">Sil</button>
+              <button id="write-group" class="btn primary" data-icon="download" data-i18n="btn_write_group">Download category as ANSYS library</button>
+              <button id="rename-group" class="btn ghost" data-icon="edit" data-i18n="btn_rename">Rename</button>
+              <button id="delete-group" class="btn ghost danger-text" data-icon="trash" data-i18n="btn_delete">Delete</button>
             </div>
           </div>
           <div id="toolbar" class="toolbar">
             <div class="search">
               <span data-icon="search"></span>
-              <input id="search" type="search" placeholder="Malzeme veya kategori ara">
+              <input id="search" type="search" data-i18n-placeholder="search_placeholder">
             </div>
-            <label class="sort">Sırala
+            <label class="sort"><span data-i18n="sort_label">Sort</span>
               <select id="sort">
-                <option value="addedAt:desc">Eklenme tarihi · yeni → eski</option>
-                <option value="addedAt:asc">Eklenme tarihi · eski → yeni</option>
-                <option value="name:asc">Ad · A → Z</option>
-                <option value="name:desc">Ad · Z → A</option>
-                <option value="category:asc">Kategori · A → Z</option>
-                <option value="category:desc">Kategori · Z → A</option>
+                <option value="addedAt:desc" data-i18n="sort_added_desc"></option>
+                <option value="addedAt:asc" data-i18n="sort_added_asc"></option>
+                <option value="name:asc" data-i18n="sort_name_asc"></option>
+                <option value="name:desc" data-i18n="sort_name_desc"></option>
+                <option value="category:asc" data-i18n="sort_cat_asc"></option>
+                <option value="category:desc" data-i18n="sort_cat_desc"></option>
               </select>
             </label>
           </div>
 
           <div id="selection-bar" class="selection-bar" hidden>
-            <span><b id="selection-count">0</b> malzeme seçildi</span>
+            <span data-i18n-html="selection_count_html"><b id="selection-count">0</b> selected</span>
+            <button id="clear-selection" class="btn ghost small-btn" data-i18n="btn_clear_selection">Clear selection</button>
             <span class="spacer"></span>
-            <button id="assign-group" class="btn primary" data-icon="folder">Kategoriye ekle</button>
-            <button id="unassign-group" class="btn" data-icon="folder-minus" hidden>Bu kategoriden çıkar</button>
-            <button id="download-selected" class="btn" data-icon="download" title="Yalnızca seçilen malzemeleri içeren ayrı bir ANSYS dosyası">Ayrı XML olarak indir</button>
-            <button id="remove-selected" class="btn danger" data-icon="trash">Kütüphaneden kaldır</button>
-            <button id="clear-selection" class="btn ghost">Seçimi kaldır</button>
+            <button id="assign-group" class="btn primary" data-icon="folder" data-i18n="btn_assign">Add to category</button>
+            <button id="unassign-group" class="btn" data-icon="folder-minus" data-i18n="btn_unassign" hidden>Remove from this category</button>
+            <button id="download-selected" class="btn" data-icon="download" data-i18n="btn_download_selected" data-i18n-title="btn_download_selected_title">Download as separate XML</button>
+            <button id="remove-selected" class="btn danger" data-icon="trash" data-i18n="btn_remove">Remove from library</button>
           </div>
 
           <table id="table">
             <thead>
               <tr>
-                <th class="col-check"><input type="checkbox" id="select-all" title="Listelenenlerin tümünü seç"></th>
-                <th data-sort="name">Malzeme</th>
-                <th>ANSYS durumu</th>
-                <th data-sort="addedAt">Eklenme</th>
+                <th class="col-check"><input type="checkbox" id="select-all" data-i18n-title="select_all_title"></th>
+                <th data-sort="name" data-i18n="col_material">Material</th>
+                <th data-i18n="col_status">ANSYS status</th>
+                <th data-sort="addedAt" data-i18n="col_added">Added</th>
                 <th class="col-actions"></th>
               </tr>
             </thead>
@@ -115,71 +113,60 @@
 
           <div id="empty" class="empty" hidden>
             <span class="empty-icon" data-icon="library"></span>
-            <h2>Kütüphaneniz boş</h2>
+            <h2 data-i18n="empty_heading">Your library is empty</h2>
             <ol class="steps">
-              <li><a href="https://www.matweb.com/" target="_blank" rel="noopener">matweb.com</a>'da bir malzemenin veri sayfasını açın.</li>
-              <li>Araç çubuğundaki <b>Material Converter</b> düğmesine tıklayın.</li>
-              <li><b>Kütüphaneye ekle</b>'ye basın. Malzeme burada listelenir ve ANSYS dosyasına yazılır.</li>
+              <li data-i18n-html="empty_step1_html"></li>
+              <li data-i18n-html="empty_step2_html"></li>
+              <li data-i18n-html="empty_step3_html"></li>
             </ol>
           </div>
-          <div id="no-match" class="empty small" hidden>Aramanızla eşleşen malzeme yok.</div>
+          <div id="no-match" class="empty small" hidden></div>
         </div>
       </div>
     </section>
 
     <!-- ============ KURULUM VE AYARLAR ============ -->
-    <section id="view-kurulum" class="view" hidden>
+    <section id="view-setup" class="view" hidden>
       <div class="page-head">
         <div>
-          <h1>Kurulum ve ayarlar</h1>
-          <p class="muted">Kütüphane dosyasının nereye kaydedileceğini seçin ve ANSYS'e bir kez tanıtın.
-            Sonrasında eklediğiniz her malzeme aynı dosyaya yazılır.</p>
+          <h1 data-i18n="tab_setup">Setup &amp; settings</h1>
+          <p class="muted" data-i18n="setup_intro"></p>
         </div>
       </div>
 
       <div class="card section">
-        <h2><span class="step-no">1</span> Kütüphane dosyasının konumu</h2>
-        <div class="notice info"><span data-icon="info"></span>
-          <span>Tarayıcılar, güvenlik nedeniyle eklentilerin yalnızca <b>İndirilenler</b> klasörünün içine yazmasına izin verir.
-            Bu yüzden konum İndirilenler altında bir alt klasör olarak seçilir.</span>
-        </div>
+        <h2><span class="step-no">1</span> <span data-i18n="setup_step1">Library file location</span></h2>
+        <div class="notice info"><span data-icon="info"></span><span data-i18n-html="setup_notice_html"></span></div>
         <div class="form">
-          <label for="folder">Alt klasör</label>
-          <div class="input-prefix"><span>İndirilenler /</span><input id="folder" type="text" placeholder="ör. ANSYS/Malzemeler — boş bırakılırsa doğrudan İndirilenler"></div>
-          <label for="file-name">Dosya adı</label>
+          <label for="folder" data-i18n="label_subfolder">Subfolder</label>
+          <div class="input-prefix"><span><span id="downloads-prefix" data-i18n="downloads_folder">Downloads</span> /</span><input id="folder" type="text" data-i18n-placeholder="folder_placeholder"></div>
+          <label for="file-name" data-i18n="label_file_name">File name</label>
           <input id="file-name" type="text">
           <span></span>
-          <label class="check"><input type="checkbox" id="auto"> Malzeme eklendiğinde veya kaldırıldığında ana kütüphane dosyasını otomatik güncelle (önerilir; kategori dosyaları hariç)</label>
+          <label class="check"><input type="checkbox" id="auto"> <span data-i18n="auto_label"></span></label>
           <span></span>
-          <div class="path-line">Dosya şuraya kaydedilecek: <code id="path-preview"></code></div>
+          <div class="path-line"><span data-i18n="path_line">The file will be saved to:</span> <code id="path-preview"></code></div>
         </div>
         <div class="actions">
-          <button id="save-settings" class="btn primary" data-icon="check">Ayarları kaydet</button>
+          <button id="save-settings" class="btn primary" data-icon="check" data-i18n="btn_save_settings">Save settings</button>
         </div>
       </div>
 
       <div class="card section">
-        <h2><span class="step-no">2</span> ANSYS'e tanıtın (yalnızca bir kez)</h2>
+        <h2><span class="step-no">2</span> <span data-i18n="setup_step2">Register it in ANSYS (only once)</span></h2>
         <ol class="steps">
-          <li>Yukarıdaki ayarları kaydettikten sonra <b>Malzemeler</b> sekmesinde <b>Şimdi güncelle</b>'ye basın; dosya oluşur.</li>
-          <li>ANSYS Workbench'te <b>Engineering Data</b>'yı açın, araç çubuğundan <b>Engineering Data Sources</b> görünümüne geçin.</li>
-          <li>Listenin en altındaki boş satırın <b>Location</b> sütunundaki <b>…</b> düğmesiyle şu dosyayı seçin:
-            <code id="setup-path"></code></li>
-          <li>Bundan sonra eklediğiniz malzemeler aynı dosyaya yazılır; ANSYS'te kütüphaneyi yenilemeniz yeterlidir.</li>
-          <li><b>Kategoriler</b> istediğiniz zaman, kategoriyi açıp <b>Kategoriyi ANSYS kütüphanesi olarak indir</b>'e basarak
-            aynı klasöre kendi adıyla ayrı bir dosya olarak indirilir (ör. <code>Alüminyum alaşımları.xml</code>); otomatik indirilmez.
-            Bu dosyaları da aynı yolla ANSYS'e ayrı kütüphaneler olarak ekleyebilirsiniz.</li>
+          <li data-i18n-html="setup_s2_1_html"></li>
+          <li data-i18n-html="setup_s2_2_html"></li>
+          <li><span data-i18n-html="setup_s2_3_html"></span> <code id="setup-path"></code></li>
+          <li data-i18n="setup_s2_4"></li>
+          <li data-i18n-html="setup_s2_5_html"></li>
         </ol>
-        <p class="muted small">Menü adları ANSYS sürümüne göre küçük farklılıklar gösterebilir. Dosyayı tek seferlik içe aktarmak için
-          <i>File → Import Engineering Data</i> da kullanılabilir.</p>
+        <p class="muted small" data-i18n-html="setup_note_html"></p>
       </div>
 
       <div class="card section">
-        <h2><span class="step-no">3</span> ANSYS'e neler aktarılır?</h2>
-        <p class="muted">Yoğunluk, elastisite (E ve ν), akma ve çekme dayanımı, basma dayanımları, ısıl genleşme
-          (sıcaklık tablosu ve referans sıcaklığıyla), özgül ısı, ısıl iletkenlik ve elektriksel direnç; SI birimlerine çevrilerek.
-          Sertlik, kimyasal bileşim ve kalınlığa bağlı değerlerin ANSYS'te karşılığı yoktur; bunlar için malzeme panelindeki
-          <b>Tüm veriyi ayrı XML olarak indir</b> seçeneğini kullanın.</p>
+        <h2><span class="step-no">3</span> <span data-i18n="setup_step3">What is transferred to ANSYS?</span></h2>
+        <p class="muted" data-i18n-html="setup_s3_html"></p>
       </div>
     </section>
   </main>
@@ -187,18 +174,18 @@
   <!-- Kategoriye ekle -->
   <dialog id="assign-dialog" class="dialog">
     <form method="dialog">
-      <h2>Kategoriye ekle</h2>
-      <p class="muted"><b id="assign-count">0</b> malzeme seçili kategoriye eklenecek.</p>
+      <h2 data-i18n="dialog_assign_title">Add to category</h2>
+      <p class="muted" data-i18n-html="assign_count_html"><b id="assign-count">0</b></p>
       <div id="assign-options" class="options"></div>
       <label class="option">
         <input type="radio" name="assign-target" value="__new__" id="assign-new-radio">
-        <span>Yeni kategori oluştur</span>
+        <span data-i18n="assign_new">Create a new category</span>
       </label>
-      <input id="assign-new-name" type="text" placeholder="Kategori adı, ör. Alüminyum alaşımları" maxlength="80">
+      <input id="assign-new-name" type="text" data-i18n-placeholder="assign_new_placeholder" maxlength="80">
       <div id="assign-error" class="form-error" hidden></div>
       <div class="dialog-actions">
-        <button type="button" class="btn" data-close>Vazgeç</button>
-        <button id="assign-confirm" value="ok" class="btn primary">Ekle</button>
+        <button type="button" class="btn" data-close data-i18n="btn_cancel">Cancel</button>
+        <button id="assign-confirm" value="ok" class="btn primary" data-i18n="btn_add_short">Add</button>
       </div>
     </form>
   </dialog>
@@ -206,13 +193,13 @@
   <!-- Kategori adı (yeni / yeniden adlandır) -->
   <dialog id="name-dialog" class="dialog">
     <form method="dialog">
-      <h2 id="name-title">Yeni kategori</h2>
-      <label for="name-input" class="muted">Kategori adı (ANSYS kütüphane dosyasının adı da bu olur)</label>
+      <h2 id="name-title"></h2>
+      <label for="name-input" class="muted" data-i18n="name_label"></label>
       <input id="name-input" type="text" maxlength="80">
       <div id="name-error" class="form-error" hidden></div>
       <div class="dialog-actions">
-        <button type="button" class="btn" data-close>Vazgeç</button>
-        <button id="name-confirm" value="ok" class="btn primary">Kaydet</button>
+        <button type="button" class="btn" data-close data-i18n="btn_cancel">Cancel</button>
+        <button id="name-confirm" value="ok" class="btn primary" data-i18n="btn_save">Save</button>
       </div>
     </form>
   </dialog>

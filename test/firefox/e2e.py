@@ -32,7 +32,7 @@ WIDGET = 'matweb-xml_material-converter-browser-action'
 PORT = 8765
 PAC = ('data:text/plain,function FindProxyForURL(u,h){return h.indexOf("matweb.com")>=0?'
        '"PROXY 127.0.0.1:%d":"DIRECT";}' % PORT)
-LIBRARY = 'MatWeb_ANSYS_Kutuphanesi.xml'
+LIBRARY = 'MatWeb_ANSYS_Library.xml'  # Firefox İngilizce arayüzle çalışır
 
 failures = []
 
@@ -123,7 +123,7 @@ def main():
         setup_ok = False
         for h in opened:
             d.switch_to.window(h)
-            setup_ok = setup_ok or d.current_url.endswith('library.html#kurulum')
+            setup_ok = setup_ok or d.current_url.endswith('library.html#setup')
             d.close()
         d.switch_to.window(sorted(handles_before)[0])
         check(setup_ok, 'ilk kurulumda "Kurulum ve ayarlar" sayfası açıldı')
@@ -139,17 +139,17 @@ def main():
         st = open_popup()
         check(st['state'] == 'material' and st['name'] == 'Test Alloy T6; T651' and not st['inLibrary'],
               'malzeme okundu, "Kütüphanede değil" gösteriliyor')
-        check(st['props'] == "ANSYS'e 7 özellik aktarılır" and not st['warnings'], 'aktarılacak özellik sayısı: ' + st['props'])
+        check(st['props'] == "7 properties go to ANSYS" and not st['warnings'], 'aktarılacak özellik sayısı: ' + st['props'])
         st = click('add')
-        check(st['inLibrary'] and st['add'] == 'Kütüphanede güncelle' and st['count'] == '1' and st['badge'] == '1',
+        check(st['inLibrary'] and st['add'] == 'Update in library' and st['count'] == '1' and st['badge'] == '1',
               'ilk malzeme eklendi; durum, sayaç ve rozet güncellendi')
-        check('eklendi' in st['toast'], 'bildirim gösterildi: ' + st['toast'])
+        check('was added' in st['toast'], 'bildirim gösterildi: ' + st['toast'])
         close_popup()
 
         visit('b' * 32)
         st = open_popup()
         check(st['name'] == 'Test Steel', '"Overview" sayfa adı sadeleştirildi')
-        check(len(st['warnings']) == 1 and 'Overview' in st['warnings'][0], 'Overview sayfası için uyarı gösterildi')
+        check(len(st['warnings']) == 1 and 'overview' in st['warnings'][0], 'Overview sayfası için uyarı gösterildi')
         st = click('add')
         check(st['count'] == '2' and st['badge'] == '2', 'ikinci malzeme eklendi, rozet 2')
         st = click('export-one')
@@ -157,9 +157,9 @@ def main():
         close_popup()
 
         st = open_popup()
-        check(st['add'] == 'Kütüphanede güncelle', 'kütüphanedeki malzeme tanındı')
+        check(st['add'] == 'Update in library', 'kütüphanedeki malzeme tanındı')
         st = click('add')
-        check(st['count'] == '2' and 'güncellendi' in st['toast'], 'tekrar eklemede kopya oluşmadı')
+        check(st['count'] == '2' and 'was updated' in st['toast'], 'tekrar eklemede kopya oluşmadı')
         close_popup()
 
         time.sleep(2)
@@ -195,7 +195,7 @@ def main():
 
         r = rows()
         check([x['name'] for x in r] == ['Test Steel', 'Test Alloy T6; T651'], 'kütüphane: varsayılan sıra en yeni üstte')
-        check('dikkat' in r[0]['status'] and 'Overview' in r[0]['status'] and 'Hazır' in r[1]['status'],
+        check('attention' in r[0]['status'] and 'overview' in r[0]['status'] and 'Ready' in r[1]['status'],
               'kütüphane: ANSYS durum sütunu')
         check(r[0]['href'] == 'http://www.matweb.com/search/DataSheet.aspx?MatGUID=' + 'b' * 32, 'malzeme bağlantısı MatWeb sayfasına gidiyor')
         check(d.find_element(By.ID, 'selection-bar').is_displayed() is False, 'seçim yokken toplu işlem çubuğu gizli')
@@ -224,7 +224,7 @@ def main():
         check(d.find_element(By.ID, 'selection-bar').is_displayed() and d.find_element(By.ID, 'selection-count').text == '1',
               'seçince "1 malzeme seçildi" çubuğu göründü')
         js("document.getElementById('download-selected').click();")
-        sel = [f for f in os.listdir(downloads) if f.startswith('MatWeb_Secim_')]
+        sel = [f for f in os.listdir(downloads) if f.startswith('MatWeb_Selection_')]
         check(len(sel) == 1, 'seçilen malzemeler ayrı dosyaya indirildi: ' + ', '.join(sel))
         if sel:
             names = [n.text for n in ET.parse(os.path.join(downloads, sel[0])).getroot()
@@ -232,20 +232,20 @@ def main():
             check(names == ['Test Alloy T6; T651'], 'seçim dosyasında yalnızca seçilen malzeme var')
 
         # Kurulum ve ayarlar sekmesi: konum
-        js("location.hash = '#kurulum';")
-        check(d.find_element(By.ID, 'view-kurulum').is_displayed() and not d.find_element(By.ID, 'view-malzemeler').is_displayed(),
+        js("location.hash = '#setup';")
+        check(d.find_element(By.ID, 'view-setup').is_displayed() and not d.find_element(By.ID, 'view-materials').is_displayed(),
               '"Kurulum ve ayarlar" sekmesine geçildi')
         js('''document.getElementById('folder').value = '../ANSYS/Kutuphane';
               document.getElementById('folder').dispatchEvent(new Event('input'));
               document.getElementById('save-settings').click();''')
-        check(d.find_element(By.ID, 'path-preview').text == 'İndirilenler/ANSYS/Kutuphane/' + LIBRARY,
+        check(d.find_element(By.ID, 'path-preview').text == 'Downloads/ANSYS/Kutuphane/' + LIBRARY,
               'konum ayarı kaydedildi ve güvenli hâle getirildi')
-        check(d.find_element(By.ID, 'setup-path').text == 'İndirilenler/ANSYS/Kutuphane/' + LIBRARY, 'ANSYS adımlarında yeni yol gösteriliyor')
-        js("location.hash = '#malzemeler';")
+        check(d.find_element(By.ID, 'setup-path').text == 'Downloads/ANSYS/Kutuphane/' + LIBRARY, 'ANSYS adımlarında yeni yol gösteriliyor')
+        js("location.hash = '#materials';")
         js("document.getElementById('write-library').click();")
         target = os.path.join(downloads, 'ANSYS', 'Kutuphane', LIBRARY)
         check(os.path.exists(target), 'kütüphane ayarlanan alt klasöre yazıldı')
-        check('Son güncelleme' in d.find_element(By.ID, 'file-meta').text, 'son güncelleme zamanı gösteriliyor')
+        check('Last update' in d.find_element(By.ID, 'file-meta').text, 'son güncelleme zamanı gösteriliyor')
 
         # Seçilenleri kaldır (onay penceresi) -> otomatik güncelleme yeni konuma yazar
         d.execute_script("setTimeout(() => document.getElementById('remove-selected').click(), 0);")
@@ -290,7 +290,7 @@ def main():
         # Aynı adla ikinci kategori engellenir (Enter ile)
         js("document.getElementById('new-group').click();")
         type_enter('name-input', 'test GRUBU')
-        check(dialog_open('name-dialog') and 'zaten var' in d.find_element(By.ID, 'name-error').text, 'aynı adlı kategori engellendi')
+        check(dialog_open('name-dialog') and 'already exists' in d.find_element(By.ID, 'name-error').text, 'aynı adlı kategori engellendi')
         d.find_element(By.ID, 'name-input').send_keys(Keys.ESCAPE)
         time.sleep(0.5)
         check(not dialog_open('name-dialog'), 'Esc ile pencere kapandı')
@@ -299,11 +299,11 @@ def main():
         js("[...document.querySelectorAll('.group-item')].find(b => b.textContent.includes('Test grubu')).click();")
         check(d.find_element(By.ID, 'group-head').is_displayed() and d.find_element(By.ID, 'group-title').text == 'Test grubu',
               'kategori seçilince başlığı görünüyor')
-        check('Henüz indirilmedi' in d.find_element(By.ID, 'group-meta').text, 'başlıkta "Henüz indirilmedi" yazıyor')
+        check('Not downloaded yet' in d.find_element(By.ID, 'group-meta').text, 'başlıkta "Henüz indirilmedi" yazıyor')
         js("document.getElementById('write-group').click();")
-        check(os.path.exists(gfile) and lib_names(gfile) == (['Test Steel'], 'Kategori: Test grubu'),
+        check(os.path.exists(gfile) and lib_names(gfile) == (['Test Steel'], 'Category: Test grubu'),
               '"indir" düğmesiyle kategori kendi adını taşıyan ANSYS dosyasına yazıldı')
-        check('Güncel' in d.find_element(By.ID, 'group-meta').text, 'başlıkta "Güncel" yazıyor')
+        check('Up to date' in d.find_element(By.ID, 'group-meta').text, 'başlıkta "Güncel" yazıyor')
 
         # Yeniden adlandır (Enter ile): yeni adla dosya otomatik oluşmaz
         js("document.getElementById('rename-group').click();")
@@ -318,7 +318,7 @@ def main():
         js("document.getElementById('select-all').click();")
         js("document.getElementById('unassign-group').click();")
         check(rows() == [] and lib_names(rfile)[0] == ['Test Steel'], 'kategoriden çıkarıldı; dosya otomatik değişmedi')
-        check('güncel değil' in d.find_element(By.ID, 'group-meta').text, 'başlıkta "İndirilen dosya güncel değil" uyarısı var')
+        check('out of date' in d.find_element(By.ID, 'group-meta').text, 'başlıkta "İndirilen dosya güncel değil" uyarısı var')
         js("document.querySelectorAll('.group-item')[0].click();")
         check([x['name'] for x in rows()] == ['Test Steel'], 'malzeme kütüphanede kalmaya devam ediyor')
 
@@ -328,7 +328,7 @@ def main():
         time.sleep(0.5)
         d.switch_to.alert.accept()
         time.sleep(1)
-        check([g[0] for g in groups()] == ['Tüm malzemeler'], 'kategori silindi')
+        check([g[0] for g in groups()] == ['All materials'], 'kategori silindi')
     finally:
         d.quit()
         server.shutdown()

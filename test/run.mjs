@@ -95,14 +95,14 @@ async function storeTests(browser, results) {
       groupPath: S.groupPath({ folder: 'ANSYS', fileName: 'Kutuphane.xml' }, { name: 'Uçak: parçaları' }),
       groupClash: S.groupPath({ folder: '', fileName: 'Kutuphane.xml' }, { name: 'kutuphane' }),
       findSelf: !!S.findGroupByName({ groups: [{ id: '1', name: 'Döküm' }] }, 'döküm', '1'),
-      notes: S.toAnsysXml([], 'Kategori: Döküm').includes('<Notes>Kategori: Döküm</Notes>')
+      notes: S.toAnsysXml([], 'Category: Döküm').includes('<Notes>Category: Döküm</Notes>')
     };
   }, results.map((r) => r.data));
   const expect = (cond, label) => { if (!cond) failed++; console.log((cond ? 'TAMAM ' : 'HATA  ') + label); };
   expect(out.clean === 'https://www.matweb.com/search/DataSheet.aspx?MatGUID=abc', 'kaynak adresi temizleniyor');
   expect(out.cleanLower === 'https://www.matweb.com/search/datasheet.aspx?MatGUID=abc', 'küçük harfli matguid korunuyor');
   expect(out.folder === 'ANSYS/Malzemeler', 'klasör yolu güvenli hâle getiriliyor: ' + out.folder);
-  expect(out.file === 'kutuphane.xml' && out.path === 'MatWeb_ANSYS_Kutuphanesi.xml', 'dosya adı varsayılanları');
+  expect(out.file === 'kutuphane.xml' && out.path === 'MatWeb_ANSYS_Library.xml', 'dosya adı varsayılanları');
   expect(out.byName.join('|') === 'alüminyum|Çelik A|Çelik B', 'Türkçe ada göre sıralama: ' + out.byName.join('|'));
   expect(out.byDate.join('|') === 'alüminyum|Çelik B|Çelik A', 'tarihe göre sıralama');
   // fixtures: conditional (tam veri) -> 0 uyarı, overview (Overview sayfası) -> 1 uyarı

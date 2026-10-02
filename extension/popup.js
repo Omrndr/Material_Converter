@@ -3,6 +3,7 @@
 
 const api = globalThis.browser ?? globalThis.chrome;
 const $ = (id) => document.getElementById(id);
+const t = UI.t;
 
 let current = null; // { data, sourceUrl }
 let settings = null;
@@ -17,7 +18,7 @@ function isMatweb(url) {
 }
 
 function displayName(name) {
-  return (name || 'MatWeb malzemesi').replace(/^Overview of materials for\s+/i, '');
+  return (name || t('default_material_name')).replace(/^Overview of materials for\s+/i, '');
 }
 
 function materialKey(c) {
@@ -43,20 +44,19 @@ function renderLibrary() {
   $('count').textContent = settings.library.length;
   const folder = MatStore.sanitizeFolder(settings.folder);
   $('path-file').textContent = MatStore.sanitizeFileName(settings.fileName);
-  $('path-dir').textContent = 'Klasör: İndirilenler' + (folder ? '/' + folder : '');
+  $('path-dir').textContent = t('popup_folder', t('downloads_folder') + (folder ? '/' + folder : ''));
   const meta = $('file-meta');
   meta.textContent = '';
   const parts = [];
-  if (!settings.autoUpdate) parts.push('Otomatik güncelleme kapalı');
-  else parts.push('Her eklemede otomatik güncellenir');
-  if (settings.lastWrittenAt) parts.push('son: ' + UI.formatDate(settings.lastWrittenAt));
+  parts.push(settings.autoUpdate ? t('auto_on_short') : t('auto_off'));
+  if (settings.lastWrittenAt) parts.push(t('last_short', UI.formatDate(settings.lastWrittenAt)));
   meta.append(parts.join(' · ') + ' · ');
   const change = document.createElement('a');
   change.href = '#';
-  change.textContent = 'Konumu değiştir';
+  change.textContent = t('change_location');
   change.addEventListener('click', (e) => {
     e.preventDefault();
-    openTab(api.runtime.getURL('library.html#kurulum'));
+    openTab(api.runtime.getURL('library.html#setup'));
   });
   meta.append(change);
 }
@@ -72,16 +72,16 @@ function renderMaterial() {
   status.textContent = '';
   if (existing) {
     status.className = 'chip ok';
-    status.append(UI.icon('check'), 'Kütüphanede · ' + UI.formatDate(existing.updatedAt || existing.addedAt, false));
+    status.append(UI.icon('check'), t('status_in_library', UI.formatDate(existing.updatedAt || existing.addedAt, false)));
   } else {
     status.className = 'chip';
-    status.textContent = 'Kütüphanede değil';
+    status.textContent = t('status_not_in_library');
   }
 
   const props = MatStore.ansysProperties(data);
   const chip = $('mat-props');
   chip.className = props.length ? 'chip info' : 'chip warn';
-  chip.textContent = props.length ? `ANSYS'e ${props.length} özellik aktarılır` : "ANSYS'e aktarılacak özellik yok";
+  chip.textContent = props.length ? UI.tn('props_count', props.length) : t('props_none');
   chip.title = props.join('\n');
 
   const groupBox = $('mat-groups');
@@ -90,7 +90,7 @@ function renderMaterial() {
     settings.groups.filter((g) => g.members.includes(existing.uid)).forEach((g) => {
       const c = document.createElement('span');
       c.className = 'chip';
-      c.title = 'Kategori';
+      c.title = t('category');
       c.append(UI.icon('folder'), g.name);
       groupBox.append(c);
     });
@@ -106,7 +106,7 @@ function renderMaterial() {
   });
 
   const add = $('add');
-  add.textContent = existing ? 'Kütüphanede güncelle' : 'Kütüphaneye ekle';
+  add.textContent = existing ? t('btn_update') : t('btn_add');
   add.dataset.icon = existing ? 'refresh' : 'plus';
   UI.hydrate(add.parentElement);
 }
@@ -133,8 +133,7 @@ async function addCurrent() {
   if (settings.autoUpdate) await MatStore.writeLibrary(settings);
   renderMaterial();
   renderLibrary();
-  const what = existing ? 'güncellendi' : 'kütüphaneye eklendi';
-  UI.toast(`${entry.name} ${what}.` + (settings.autoUpdate ? ' ANSYS dosyası güncellendi.' : ''));
+  UI.toast(t(existing ? 'toast_updated' : 'toast_added', entry.name) + (settings.autoUpdate ? ' ' + t('toast_ansys_updated') : ''));
 }
 
 async function exportCurrent() {
@@ -144,7 +143,7 @@ async function exportCurrent() {
   });
   const name = MatwebXml.fileNameFor(current.data.name);
   await MatStore.download(xml, name, false);
-  UI.toast(`İndirilenler/${name} indirildi.`);
+  UI.toast(t('toast_downloaded_path', MatStore.displayPath(name)));
 }
 
 async function readActiveTab() {
@@ -167,11 +166,12 @@ function guard(fn) {
       await fn();
     } catch (e) {
       console.error(e);
-      UI.toast('Hata: ' + (e && e.message ? e.message : e), 'err');
+      UI.toast(t('error_prefix', e && e.message ? e.message : String(e)), 'err');
     }
   };
 }
 
+UI.localize();
 $('add').addEventListener('click', guard(addCurrent));
 $('export-one').addEventListener('click', guard(exportCurrent));
 $('open-library').addEventListener('click', () => openTab(api.runtime.getURL('library.html')));

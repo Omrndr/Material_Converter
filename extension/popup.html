@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="tr">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <link rel="stylesheet" href="ui.css">
@@ -10,29 +10,29 @@
     <img src="icons/icon.svg" alt="" width="28" height="28">
     <div>
       <div class="brand-title">Material Converter</div>
-      <div class="brand-sub">MatWeb → ANSYS Engineering Data</div>
+      <div class="brand-sub" data-i18n="brand_sub">MatWeb → ANSYS Engineering Data</div>
     </div>
   </header>
 
   <main>
     <!-- 1) Açık sekmedeki sayfa -->
     <section class="card page">
-      <div class="eyebrow">Açık sayfa</div>
+      <div class="eyebrow" data-i18n="popup_open_page">Current page</div>
 
-      <div id="state-loading" class="muted">Sayfa okunuyor…</div>
+      <div id="state-loading" class="muted" data-i18n="popup_loading">Reading page…</div>
 
       <div id="state-empty" hidden>
-        <p class="lead">Bu sekmede bir MatWeb malzeme sayfası yok.</p>
+        <p class="lead" data-i18n="popup_empty_lead"></p>
         <ol class="steps">
-          <li><a href="https://www.matweb.com/" id="matweb-link">matweb.com</a>'da bir malzemenin veri sayfasını açın.</li>
-          <li>Araç çubuğundaki bu düğmeye tıklayın.</li>
-          <li><b>Kütüphaneye ekle</b>'ye basın.</li>
+          <li data-i18n-html="popup_empty_step1_html"></li>
+          <li data-i18n="popup_empty_step2"></li>
+          <li data-i18n-html="popup_empty_step3_html"></li>
         </ol>
       </div>
 
       <div id="state-nodata" hidden>
-        <p class="lead">Bu MatWeb sayfasında özellik tablosu bulunamadı.</p>
-        <p class="muted">Arama sonucu değil, bir malzemenin kendi veri sayfasını (DataSheet) açın.</p>
+        <p class="lead" data-i18n="popup_nodata_lead"></p>
+        <p class="muted" data-i18n="popup_nodata_hint"></p>
       </div>
 
       <div id="state-material" hidden>
@@ -44,9 +44,9 @@
         </div>
         <div id="mat-groups" class="group-chips"></div>
         <div id="page-warnings"></div>
-        <button id="add" class="btn primary block" data-icon="plus">Kütüphaneye ekle</button>
+        <button id="add" class="btn primary block" data-icon="plus" data-i18n="btn_add">Add to library</button>
         <button id="export-one" class="btn ghost block" data-icon="download"
-                title="Sertlik, kompozisyon, koşullu değerler dahil sayfadaki tüm veri">Tüm veriyi ayrı XML olarak indir</button>
+                data-i18n="btn_export_one" data-i18n-title="btn_export_one_title">Download all data as a separate XML</button>
       </div>
     </section>
 
@@ -54,10 +54,10 @@
     <section class="card library">
       <div class="library-head">
         <div>
-          <div class="eyebrow">Kütüphane</div>
-          <div class="count"><span id="count">0</span> malzeme</div>
+          <div class="eyebrow" data-i18n="popup_library">Library</div>
+          <div class="count" data-i18n-html="popup_count_html"><span id="count">0</span> materials</div>
         </div>
-        <button id="open-library" class="btn" data-icon="library">Kütüphaneyi yönet</button>
+        <button id="open-library" class="btn" data-icon="library" data-i18n="btn_manage_library">Manage library</button>
       </div>
       <div class="file">
         <span data-icon="file"></span>

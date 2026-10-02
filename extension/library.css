@@ -381,7 +381,7 @@ td.date {
   }
 }
 
-.steps code,
+#setup-path,
 .path-line code {
   display: block;
   width: fit-content;
@@ -416,6 +416,7 @@ td.date {
   margin: 0;
   padding: 0;
   display: grid;
+  grid-template-columns: minmax(0, 1fr);
   gap: 2px;
 }
 .group-item {

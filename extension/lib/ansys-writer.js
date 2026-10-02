@@ -78,7 +78,7 @@
       var lo = parseFloat(v.min), hi = parseFloat(v.max);
       if (lo === hi) return lo;
       var n = avg !== null && avg >= lo && avg <= hi ? avg : (lo + hi) / 2;
-      notes.push(label + ': ' + v.text + ' aralığından ' + (avg !== null ? 'MatWeb ortalaması' : 'orta nokta') + ' alındı');
+      notes.push(label + ': ' + (avg !== null ? 'MatWeb average' : 'midpoint') + ' of range ' + v.text + ' used');
       return n;
     }
     return null;
@@ -101,7 +101,7 @@
       if (!m || (m.value === undefined && m.min === undefined)) return;
       var f = factorFor(kind, m.unit);
       if (f === null) {
-        notes.push(prop.name + ': "' + (m.unit || '') + '" birimi tanınmadı, atlandı');
+        notes.push(prop.name + ': unit "' + (m.unit || '') + '" not recognized, skipped');
         return;
       }
       if (!m.conditions || !m.conditions.length) {
@@ -189,7 +189,7 @@
     var g = constant(s.shear);
     if (e && nu === null && g) {
       nu = round(e.values[0] / (2 * g) - 1);
-      notes.push("Poisson oranı, E ve G'den hesaplandı (ν = E/2G − 1)");
+      notes.push("Poisson's ratio derived from E and G (ν = E/2G − 1)");
     }
     if (e && nu !== null) {
       props.push({
@@ -203,7 +203,7 @@
         ]
       });
     } else if (e || nu !== null) {
-      notes.push("Elastisite eklenmedi: ANSYS için hem Young modülü hem Poisson oranı gerekir");
+      notes.push("Elasticity omitted: ANSYS needs both Young's modulus and Poisson's ratio");
     }
 
     simple('Tensile Yield Strength', 'Tensile Yield Strength', 'stress', s.tensileYield);
@@ -269,9 +269,9 @@
   }
 
   function materialDescription(entry, notes) {
-    var parts = ['Kaynak: MatWeb'];
+    var parts = ['Source: MatWeb'];
     if (entry.sourceUrl) parts.push(entry.sourceUrl);
-    if (entry.data.categories && entry.data.categories.length) parts.push('Kategori: ' + entry.data.categories.join('; '));
+    if (entry.data.categories && entry.data.categories.length) parts.push('Category: ' + entry.data.categories.join('; '));
     notes.forEach(function (n) { parts.push(n); });
     return parts.join(' | ');
   }

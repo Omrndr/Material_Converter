@@ -6,7 +6,7 @@
       <Material>
         <BulkDetails>
           <Name>Test Alloy T6; T651</Name>
-          <Description>Kaynak: MatWeb | https://www.matweb.com/test | Kategori: Metal; Nonferrous Metal</Description>
+          <Description>Source: MatWeb | https://www.matweb.com/test | Category: Metal; Nonferrous Metal</Description>
           <PropertyData property="pr0">
             <Data format="string">-</Data>
             <Qualifier name="Field Variable Compatible">Temperature</Qualifier>
@@ -186,7 +186,7 @@
       <Material>
         <BulkDetails>
           <Name>Overview of materials for Test Steel</Name>
-          <Description>Kaynak: MatWeb | https://www.matweb.com/test | Kategori: Metal; Ferrous Metal; Test Steel | Density: 7.80 - 7.90 g/cc aralığından MatWeb ortalaması alındı</Description>
+          <Description>Source: MatWeb | https://www.matweb.com/test | Category: Metal; Ferrous Metal; Test Steel | Density: MatWeb average of range 7.80 - 7.90 g/cc used</Description>
           <PropertyData property="pr0">
             <Data format="string">-</Data>
             <Qualifier name="Field Variable Compatible">Temperature</Qualifier>

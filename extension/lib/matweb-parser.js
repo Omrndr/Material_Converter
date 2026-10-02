@@ -156,7 +156,7 @@
       // Koşullu ek değer satırlarında ilk hücre boştur (yalnızca grafik ikonu olabilir):
       // bunlar bir önceki özelliğe aittir.
       if (name || !prop) {
-        prop = { name: name || '(adsız)', points: [] };
+        prop = { name: name || '(unnamed)', points: [] };
         group.properties.push(prop);
       }
       var point = {

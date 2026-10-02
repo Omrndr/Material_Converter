@@ -80,6 +80,6 @@ api.runtime.onInstalled.addListener((details) => {
   updateBadge();
   // İlk kurulumda kullanıcıyı kurulum rehberine götür.
   if (details && details.reason === 'install') {
-    api.tabs.create({ url: api.runtime.getURL('library.html#kurulum') });
+    api.tabs.create({ url: api.runtime.getURL('library.html#setup') });
   }
 });

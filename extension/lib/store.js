@@ -5,11 +5,17 @@
 
   var api = root.browser || root.chrome;
 
+  // Çeviri (ui.js yüklüyse); yoksa (ör. birim testleri) İngilizce yedek metin kullanılır.
+  function t(key, subs, fallback) {
+    return root.UI && root.UI.t ? root.UI.t(key, subs, fallback) : (fallback || key);
+  }
+  var LANG = (root.UI && root.UI.lang) || 'en';
+
   var DEFAULTS = {
     library: [],
     autoUpdate: true,
     folder: '',
-    fileName: 'MatWeb_ANSYS_Kutuphanesi.xml',
+    fileName: t('default_file_name', undefined, 'MatWeb_ANSYS_Library.xml'),
     sort: { key: 'addedAt', dir: 'desc' },
     lastWrittenAt: '',
     // Kullanıcının kendi kategorileri: { id, name, createdAt, members: [uid], changedAt, lastWrittenAt }
@@ -18,16 +24,16 @@
 
   // ANSYS özellik adlarının kullanıcıya gösterilen Türkçe karşılıkları.
   var PROPERTY_LABELS = {
-    'Density': 'Yoğunluk',
-    'Elasticity': 'Elastisite (E, ν)',
-    'Tensile Yield Strength': 'Akma dayanımı',
-    'Tensile Ultimate Strength': 'Çekme dayanımı',
-    'Compressive Yield Strength': 'Basma akma dayanımı',
-    'Compressive Ultimate Strength': 'Basma dayanımı',
-    'Coefficient of Thermal Expansion': 'Isıl genleşme',
-    'Specific Heat': 'Özgül ısı',
-    'Thermal Conductivity': 'Isıl iletkenlik',
-    'Resistivity': 'Elektriksel direnç'
+    'Density': ['prop_density', 'Density'],
+    'Elasticity': ['prop_elasticity', 'Elasticity (E, ν)'],
+    'Tensile Yield Strength': ['prop_tensile_yield', 'Tensile yield strength'],
+    'Tensile Ultimate Strength': ['prop_tensile_ultimate', 'Ultimate tensile strength'],
+    'Compressive Yield Strength': ['prop_compressive_yield', 'Compressive yield strength'],
+    'Compressive Ultimate Strength': ['prop_compressive_ultimate', 'Compressive strength'],
+    'Coefficient of Thermal Expansion': ['prop_cte', 'Thermal expansion'],
+    'Specific Heat': ['prop_specific_heat', 'Specific heat'],
+    'Thermal Conductivity': ['prop_conductivity', 'Thermal conductivity'],
+    'Resistivity': ['prop_resistivity', 'Electrical resistivity']
   };
 
   function load() {
@@ -78,14 +84,14 @@
   function warningsFor(data) {
     var warnings = [];
     if (/^Overview of materials for/i.test(data.name || '')) {
-      warnings.push('Seri özeti (Overview) sayfası: değerler belirli bir kaliteye değil, serinin ortalamasına aittir.');
+      warnings.push(t('warn_overview', undefined, 'Series overview page: the values are averages of the whole series, not of a specific grade.'));
     }
     var names = root.MatwebAnsys.buildProperties(data).props.map(function (p) { return p.name; });
     if (names.indexOf('Elasticity') < 0) {
-      warnings.push('Elastisite (E ve ν) yok: ANSYS’te gerilme analizi için kullanılamaz.');
+      warnings.push(t('warn_no_elasticity', undefined, 'No elasticity (E and ν): cannot be used for stress analysis in ANSYS.'));
     }
     if (names.indexOf('Density') < 0) {
-      warnings.push('Yoğunluk yok.');
+      warnings.push(t('warn_no_density', undefined, 'No density.'));
     }
     return warnings;
   }
@@ -93,8 +99,8 @@
   // ANSYS'e aktarılacak özelliklerin Türkçe adları.
   function ansysProperties(data) {
     return root.MatwebAnsys.buildProperties(data).props
-      .map(function (p) { return PROPERTY_LABELS[p.name]; })
-      .filter(Boolean);
+      .filter(function (p) { return PROPERTY_LABELS[p.name]; })
+      .map(function (p) { return t(PROPERTY_LABELS[p.name][0], undefined, PROPERTY_LABELS[p.name][1]); });
   }
 
   function toAnsysXml(entries, notes) {
@@ -108,7 +114,7 @@
   function download(xml, filename, overwrite) {
     return api.runtime.sendMessage({ type: 'download', xml: xml, filename: filename, overwrite: overwrite })
       .then(function (res) {
-        if (!res || !res.ok) throw new Error((res && res.error) || 'İndirme başlatılamadı');
+        if (!res || !res.ok) throw new Error((res && res.error) || t('download_failed', undefined, 'The download could not be started'));
       });
   }
 
@@ -128,9 +134,9 @@
   }
 
   function findGroupByName(settings, name, exceptId) {
-    var n = normalizeGroupName(name).toLocaleLowerCase('tr');
+    var n = normalizeGroupName(name).toLocaleLowerCase(LANG);
     return settings.groups.find(function (g) {
-      return g.id !== exceptId && g.name.toLocaleLowerCase('tr') === n;
+      return g.id !== exceptId && g.name.toLocaleLowerCase(LANG) === n;
     });
   }
 
@@ -155,7 +161,7 @@
   function writeGroup(settings, group) {
     var entries = groupEntries(settings, group);
     var path = groupPath(settings, group);
-    return download(toAnsysXml(entries, 'Kategori: ' + group.name), path, true).then(function () {
+    return download(toAnsysXml(entries, 'Category: ' + group.name), path, true).then(function () {
       // Sayfa storage.onChanged ile kategori dizisini yenilemiş olabilir; kaydı kimliğiyle bul.
       var now = new Date().toISOString();
       group.lastWrittenAt = now;
@@ -179,7 +185,7 @@
     return !!group.lastWrittenAt && !!group.changedAt && group.changedAt > group.lastWrittenAt;
   }
 
-  var collator = new Intl.Collator('tr', { sensitivity: 'base', numeric: true });
+  var collator = new Intl.Collator(LANG, { sensitivity: 'base', numeric: true });
 
   function category(entry) {
     var c = entry.data.categories || [];
@@ -196,6 +202,17 @@
     var cmp = SORTERS[sort && sort.key] || SORTERS.addedAt;
     var sign = sort && sort.dir === 'asc' ? 1 : -1;
     return list.slice().sort(function (a, b) { return sign * cmp(a, b); });
+  }
+
+  // Kullanıcıya gösterilen yol: "Downloads/…" veya "İndirilenler/…".
+  function displayPath(path) {
+    return t('downloads_folder', undefined, 'Downloads') + '/' + path;
+  }
+
+  // Seçili malzemeler için ayrı dosyanın yolu (ana kütüphaneyle aynı klasörde).
+  function selectionPath(settings, date) {
+    var folder = sanitizeFolder(settings.folder);
+    return (folder ? folder + '/' : '') + t('selection_file_prefix', undefined, 'MatWeb_Selection_') + stamp(date) + '.xml';
   }
 
   function stamp(d) {
@@ -225,6 +242,8 @@
     isGroupStale: isGroupStale,
     sortEntries: sortEntries,
     category: category,
-    stamp: stamp
+    stamp: stamp,
+    displayPath: displayPath,
+    selectionPath: selectionPath
   };
 })(typeof globalThis !== 'undefined' ? globalThis : this);

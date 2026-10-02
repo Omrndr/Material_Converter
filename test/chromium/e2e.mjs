@@ -1,4 +1,4 @@
-// Chrome/Edge paketinin (dist/chromium) gerçek Chromium'da uçtan uca testi.
+// Chrome/Edge paketinin (dist/chromium) gerçek Chromium'da uçtan uca testi (Türkçe arayüzle; Firefox testi İngilizce).
 //
 // Chromium'da araç çubuğu düğmesine otomatik tıklanamadığından bu test, eklentiye MatWeb için site izni
 // eklenmiş bir kopyasını kullanır ve paneli (popup.html) ayrı sekmede açar. Sayfa okuma, service worker +
@@ -97,7 +97,7 @@ const proc = spawn(CHROMIUM, [
   `--host-resolver-rules=MAP www.matweb.com 127.0.0.1:${port}`,
   ...AUTOMATION_SWITCHES,
   '--no-proxy-server', '--no-sandbox', 'about:blank'
-], { stdio: 'ignore' });
+], { stdio: 'ignore', env: { ...process.env, LANGUAGE: 'tr', LANG: 'tr_TR.UTF-8' } });
 
 let browser;
 try {
@@ -113,7 +113,7 @@ try {
   const extId = new URL(setup.url()).host;
   console.log('Chromium', browser.version(), '| eklenti', extId);
   const extUrl = (p) => `chrome-extension://${extId}/${p}`;
-  check(setup.url().endsWith('#kurulum'), 'ilk kurulumda "Kurulum ve ayarlar" sayfası açıldı');
+  check(setup.url().endsWith('#setup'), 'ilk kurulumda "Kurulum ve ayarlar" sayfası açıldı');
   await setup.close();
 
   // Panel sekmede açılır; "etkin sekme" olarak MatWeb sekmesi kullanılır.
@@ -180,10 +180,10 @@ try {
   check((await names()).join('|') === 'Test Alloy T6; T651|Test Steel', 'ada göre sıralama');
 
   // Konum ayarı -> alt klasöre yazma
-  await lib.click('a.tab[data-view="kurulum"]');
+  await lib.click('a.tab[data-view="setup"]');
   await lib.fill('#folder', 'ANSYS/Kutuphane');
   await lib.click('#save-settings');
-  await lib.click('a.tab[data-view="malzemeler"]');
+  await lib.click('a.tab[data-view="materials"]');
   await lib.click('#write-library');
   const sub = path.join(downloads, 'ANSYS', 'Kutuphane');
   await waitFor(() => fs.existsSync(path.join(sub, LIBRARY)), 'alt klasör');
@@ -203,7 +203,7 @@ try {
   await lib.click('.group-item:has-text("Hafif metaller")');
   await lib.click('#write-group');
   await waitFor(() => fs.existsSync(gfile), 'kategori dosyası');
-  check(materialNames(gfile).length === 2 && fs.readFileSync(gfile, 'utf8').includes('<Notes>Kategori: Hafif metaller</Notes>'),
+  check(materialNames(gfile).length === 2 && fs.readFileSync(gfile, 'utf8').includes('<Notes>Category: Hafif metaller</Notes>'),
     'kategori kendi adıyla ANSYS dosyasına indirildi');
 
   // Seçilenleri kaldır (onay penceresi kabul edilir)

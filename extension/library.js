@@ -4,6 +4,7 @@
 
 const api = globalThis.browser ?? globalThis.chrome;
 const $ = (id) => document.getElementById(id);
+const t = UI.t;
 
 let settings = null;
 const selected = new Set();
@@ -15,7 +16,7 @@ function guard(fn) {
       await fn(...args);
     } catch (e) {
       console.error(e);
-      UI.toast('Hata: ' + (e && e.message ? e.message : e), 'err');
+      UI.toast(t('error_prefix', e && e.message ? e.message : String(e)), 'err');
     }
   };
 }
@@ -28,9 +29,9 @@ function groupsOf(uid) {
   return settings.groups.filter((g) => g.members.includes(uid));
 }
 
-// --- Sekmeler (#malzemeler / #kurulum) ---
+// --- Sekmeler (#materials / #setup; eski #kurulum bağlantıları da çalışır) ---
 function showView() {
-  const view = location.hash === '#kurulum' ? 'kurulum' : 'malzemeler';
+  const view = location.hash === '#setup' || location.hash === '#kurulum' ? 'setup' : 'materials';
   document.querySelectorAll('.view').forEach((v) => { v.hidden = v.id !== 'view-' + view; });
   document.querySelectorAll('.tab').forEach((t) => {
     const active = t.dataset.view === view;
@@ -42,11 +43,11 @@ function showView() {
 
 // --- Kütüphane dosyası bilgisi ---
 function renderFile() {
-  const path = 'İndirilenler/' + MatStore.libraryPath(settings);
+  const path = MatStore.displayPath(MatStore.libraryPath(settings));
   $('file-path').textContent = path;
   $('setup-path').textContent = path;
-  const parts = [settings.autoUpdate ? 'Malzeme eklenip kaldırıldıkça otomatik güncellenir' : 'Otomatik güncelleme kapalı'];
-  parts.push(settings.lastWrittenAt ? 'Son güncelleme: ' + UI.formatDate(settings.lastWrittenAt) : 'Henüz oluşturulmadı');
+  const parts = [settings.autoUpdate ? t('auto_on_long') : t('auto_off')];
+  parts.push(settings.lastWrittenAt ? t('last_updated', UI.formatDate(settings.lastWrittenAt)) : t('not_created'));
   $('file-meta').textContent = parts.join(' · ');
 }
 
@@ -58,7 +59,7 @@ function renderSettingsForm() {
 }
 
 function updatePathPreview() {
-  $('path-preview').textContent = 'İndirilenler/' + MatStore.libraryPath({ folder: $('folder').value, fileName: $('file-name').value });
+  $('path-preview').textContent = MatStore.displayPath(MatStore.libraryPath({ folder: $('folder').value, fileName: $('file-name').value }));
 }
 
 // --- Kategoriler ---
@@ -87,7 +88,7 @@ function renderGroups() {
     li.append(btn);
     return li;
   };
-  ul.append(item('', 'Tüm malzemeler', settings.library.length, 'layers'));
+  ul.append(item('', t('all_materials'), settings.library.length, 'layers'));
   const groups = MatStore.sortEntries(settings.groups.map((g) => ({ ...g, addedAt: g.createdAt })), { key: 'name', dir: 'asc' });
   if (groups.length) {
     const div = document.createElement('li');
@@ -101,20 +102,20 @@ function renderGroups() {
   $('unassign-group').hidden = !g;
   if (g) {
     $('group-title').textContent = g.name;
-    $('group-path').textContent = 'İndirilenler/' + MatStore.groupPath(settings, g);
+    $('group-path').textContent = MatStore.displayPath(MatStore.groupPath(settings, g));
     const meta = $('group-meta');
     meta.textContent = '';
     const chip = document.createElement('span');
     if (!g.lastWrittenAt) {
       chip.className = 'chip';
-      chip.textContent = 'Henüz indirilmedi';
+      chip.textContent = t('group_not_downloaded');
     } else if (MatStore.isGroupStale(g)) {
       chip.className = 'chip warn';
-      chip.append(UI.icon('alert'), 'İndirilen dosya güncel değil');
-      chip.title = 'Kategori son indirmeden sonra değişti. Güncel hâli için "Kategoriyi ANSYS kütüphanesi olarak indir"e basın.';
+      chip.append(UI.icon('alert'), t('group_stale'));
+      chip.title = t('group_stale_title');
     } else {
       chip.className = 'chip ok';
-      chip.append(UI.icon('check'), 'Güncel · ' + UI.formatDate(g.lastWrittenAt));
+      chip.append(UI.icon('check'), t('group_current', UI.formatDate(g.lastWrittenAt)));
     }
     meta.append(chip);
     $('write-group').disabled = g.members.length === 0;
@@ -125,12 +126,12 @@ function renderGroups() {
 function visibleEntries() {
   const g = activeGroup();
   const members = g ? new Set(g.members) : null;
-  const q = $('search').value.trim().toLocaleLowerCase('tr');
+  const q = $('search').value.trim().toLocaleLowerCase(UI.lang);
   const list = settings.library.filter((m) => {
     if (members && !members.has(m.uid)) return false;
     if (!q) return true;
     const text = [m.name, ...(m.data.categories || []), ...groupsOf(m.uid).map((x) => x.name)].join(' ');
-    return text.toLocaleLowerCase('tr').includes(q);
+    return text.toLocaleLowerCase(UI.lang).includes(q);
   });
   return MatStore.sortEntries(list, settings.sort);
 }
@@ -144,12 +145,12 @@ function statusCell(m) {
   const chip = document.createElement('span');
   if (warnings.length) {
     chip.className = 'chip warn';
-    chip.append(UI.icon('alert'), `${props.length} özellik · dikkat`);
+    chip.append(UI.icon('alert'), UI.tn('status_attention', props.length));
   } else {
     chip.className = 'chip ok';
-    chip.append(UI.icon('check'), `Hazır · ${props.length} özellik`);
+    chip.append(UI.icon('check'), UI.tn('status_ready', props.length));
   }
-  chip.title = props.length ? "ANSYS'e aktarılan özellikler:\n" + props.join('\n') : "ANSYS'e aktarılan özellik yok";
+  chip.title = props.length ? t('props_tooltip') + '\n' + props.join('\n') : t('props_none');
   box.append(chip);
   warnings.forEach((w) => {
     const d = document.createElement('div');
@@ -178,7 +179,7 @@ function render() {
     const cb = document.createElement('input');
     cb.type = 'checkbox';
     cb.checked = selected.has(m.uid);
-    cb.setAttribute('aria-label', m.name + ' seç');
+    cb.setAttribute('aria-label', t('select_material_aria', m.name));
     cb.addEventListener('change', () => {
       if (cb.checked) selected.add(m.uid);
       else selected.delete(m.uid);
@@ -193,7 +194,7 @@ function render() {
     a.href = m.sourceUrl;
     a.target = '_blank';
     a.rel = 'noopener';
-    a.title = 'MatWeb sayfasını yeni sekmede aç';
+    a.title = t('open_on_matweb');
     a.append(m.name, UI.icon('external'));
     const cat = document.createElement('div');
     cat.className = 'mat-cat';
@@ -215,16 +216,16 @@ function render() {
     const tdDate = document.createElement('td');
     tdDate.className = 'date';
     tdDate.textContent = UI.formatDate(m.addedAt);
-    if (m.updatedAt && m.updatedAt !== m.addedAt) tdDate.title = 'Son güncelleme: ' + UI.formatDate(m.updatedAt);
+    if (m.updatedAt && m.updatedAt !== m.addedAt) tdDate.title = t('last_updated', UI.formatDate(m.updatedAt));
 
     const tdAct = document.createElement('td');
     const del = document.createElement('button');
     del.className = 'icon-btn';
-    del.title = 'Kütüphaneden kaldır';
-    del.setAttribute('aria-label', m.name + ' kütüphaneden kaldır');
+    del.title = t('btn_remove');
+    del.setAttribute('aria-label', t('remove_aria', m.name));
     del.append(UI.icon('trash'));
     del.addEventListener('click', guard(() => {
-      if (confirm(`"${m.name}" kütüphaneden (ve tüm kategorilerden) kaldırılsın mı?`)) return removeEntries([m.uid]);
+      if (confirm(t('confirm_remove_one', m.name))) return removeEntries([m.uid]);
     }));
     tdAct.append(del);
 
@@ -239,9 +240,7 @@ function render() {
   $('toolbar').hidden = total === 0;
   $('empty').hidden = total > 0;
   $('no-match').hidden = !total || entries.length > 0;
-  $('no-match').textContent = g && !g.members.length
-    ? 'Bu kategori boş. "Tüm malzemeler"den malzeme seçip "Kategoriye ekle" ile ekleyin.'
-    : 'Aramanızla eşleşen malzeme yok.';
+  $('no-match').textContent = g && !g.members.length ? t('group_empty') : t('no_match');
   $('write-library').disabled = total === 0;
   $('sort').value = `${settings.sort.key}:${settings.sort.dir}`;
   document.querySelectorAll('th[data-sort]').forEach((th) => {
@@ -297,8 +296,8 @@ function showError(id, text) {
 
 // Ad doğrulaması: boş olamaz, başka kategoriyle aynı olamaz.
 function validateName(name, exceptId) {
-  if (!name) return 'Bir ad yazın.';
-  if (MatStore.findGroupByName(settings, name, exceptId)) return 'Bu adla bir kategori zaten var.';
+  if (!name) return t('err_name_empty');
+  if (MatStore.findGroupByName(settings, name, exceptId)) return t('err_name_taken');
   return '';
 }
 
@@ -333,7 +332,7 @@ function askAssign() {
     name.textContent = g.name;
     const n = document.createElement('span');
     n.className = 'n';
-    n.textContent = g.members.length + ' malzeme';
+    n.textContent = UI.tn('n_materials', g.members.length);
     label.append(r, UI.icon('folder'), name, n);
     box.append(label);
   });
@@ -344,7 +343,7 @@ function askAssign() {
   const p = openDialog($('assign-dialog'), () => {
     const target = document.querySelector('input[name="assign-target"]:checked');
     if (!target) {
-      showError('assign-error', 'Bir kategori seçin.');
+      showError('assign-error', t('err_pick_category'));
       return false;
     }
     if (target.value !== '__new__') return { groupId: target.value };
@@ -381,8 +380,8 @@ async function assignSelected() {
   const added = g.members.length - before;
   selected.clear();
   await saveGroupChange(g, answer.newName
-    ? `"${g.name}" kategorisi ${added} malzemeyle oluşturuldu.`
-    : `${added} malzeme "${g.name}" kategorisine eklendi.`);
+    ? UI.tn('toast_group_created_with', added, g.name)
+    : UI.tn('toast_added_to_group', added, g.name));
 }
 
 async function unassignSelected() {
@@ -391,46 +390,46 @@ async function unassignSelected() {
   const n = selected.size;
   g.members = g.members.filter((u) => !selected.has(u));
   selected.clear();
-  await saveGroupChange(g, `${n} malzeme "${g.name}" kategorisinden çıkarıldı (kütüphanede kalmaya devam eder).`);
+  await saveGroupChange(g, UI.tn('toast_removed_from_group', n, g.name));
 }
 
 async function newGroup() {
-  const name = await askName('Yeni kategori');
+  const name = await askName(t('name_dialog_new'));
   if (!name) return;
   const g = createGroup(name);
   activeGroupId = g.id;
   await MatStore.save({ groups: settings.groups });
   render();
-  UI.toast(`"${name}" kategorisi oluşturuldu. "Tüm malzemeler"den malzeme seçip "Kategoriye ekle" ile doldurun.`);
+  UI.toast(t('toast_group_created', name));
 }
 
 async function renameGroup() {
   const g = activeGroup();
-  const name = await askName('Kategoriyi yeniden adlandır', g.name, g.id);
+  const name = await askName(t('name_dialog_rename'), g.name, g.id);
   if (!name || name === g.name) return;
   const oldPath = MatStore.groupPath(settings, g);
   const wasDownloaded = !!g.lastWrittenAt;
   g.name = name;
   g.lastWrittenAt = '';
-  await saveGroupChange(g, `Kategori "${name}" olarak adlandırıldı.` +
-    (wasDownloaded ? ` Eski dosya (İndirilenler/${oldPath}) diskte kalır; yeni adla indirmek için "indir"e basın.` : ''));
+  await saveGroupChange(g, t('toast_group_renamed', name) +
+    (wasDownloaded ? ' ' + t('toast_old_file_remains', MatStore.displayPath(oldPath)) : ''));
 }
 
 async function deleteGroup() {
   const g = activeGroup();
-  if (!confirm(`"${g.name}" kategorisi silinsin mi?\n\nMalzemeler kütüphanede kalır. Daha önce indirilmiş dosyası (İndirilenler/${MatStore.groupPath(settings, g)}) diskte kalır.`)) return;
+  if (!confirm(t('confirm_delete_group', [g.name, MatStore.displayPath(MatStore.groupPath(settings, g))]))) return;
   settings.groups = settings.groups.filter((x) => x.id !== g.id);
   activeGroupId = '';
   await MatStore.save({ groups: settings.groups });
   render();
-  UI.toast(`"${g.name}" kategorisi silindi.`);
+  UI.toast(t('toast_group_deleted', g.name));
 }
 
 async function writeActiveGroup() {
   const g = activeGroup();
   const path = await MatStore.writeGroup(settings, g);
   render();
-  UI.toast(`"${g.name}" ANSYS kütüphanesi olarak indirildi: İndirilenler/${path}`);
+  UI.toast(t('toast_group_downloaded', [g.name, MatStore.displayPath(path)]));
 }
 
 // --- Diğer işlemler ---
@@ -450,16 +449,15 @@ async function removeEntries(uids) {
   const writeMain = settings.autoUpdate && (settings.library.length || settings.lastWrittenAt);
   if (writeMain) await MatStore.writeLibrary(settings);
   render();
-  UI.toast(`${uids.length} malzeme kütüphaneden kaldırıldı.` + (writeMain ? ' Ana ANSYS dosyası güncellendi.' : ''));
+  UI.toast(UI.tn('toast_removed', uids.length) + (writeMain ? ' ' + t('toast_main_updated') : ''));
 }
 
 async function downloadSelected() {
   // Seçim, listedeki sırayla dosyaya yazılır.
   const entries = MatStore.sortEntries(settings.library, settings.sort).filter((m) => selected.has(m.uid));
-  const folder = MatStore.sanitizeFolder(settings.folder);
-  const path = (folder ? folder + '/' : '') + `MatWeb_Secim_${MatStore.stamp(new Date())}.xml`;
+  const path = MatStore.selectionPath(settings, new Date());
   await MatStore.download(MatStore.toAnsysXml(entries), path, false);
-  UI.toast(`${entries.length} malzemelik dosya indirildi: İndirilenler/${path}`);
+  UI.toast(UI.tn('toast_selection_downloaded', entries.length, MatStore.displayPath(path)));
 }
 
 async function saveSettings() {
@@ -469,7 +467,7 @@ async function saveSettings() {
   await MatStore.save({ folder: settings.folder, fileName: settings.fileName, autoUpdate: settings.autoUpdate });
   renderSettingsForm();
   render();
-  UI.toast('Ayarlar kaydedildi. Dosyaları oluşturmak için Malzemeler sekmesinde “Şimdi güncelle”ye basın.');
+  UI.toast(t('toast_settings_saved'));
 }
 
 // --- Olaylar ---
@@ -505,12 +503,12 @@ $('assign-new-name').addEventListener('input', () => { $('assign-new-radio').che
 document.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', () => b.closest('dialog').close()));
 $('download-selected').addEventListener('click', guard(downloadSelected));
 $('remove-selected').addEventListener('click', guard(() => {
-  if (confirm(`${selected.size} malzeme kütüphaneden (ve tüm kategorilerden) kaldırılsın mı?`)) return removeEntries([...selected]);
+  if (confirm(UI.tn('confirm_remove_many', selected.size))) return removeEntries([...selected]);
 }));
 $('write-library').addEventListener('click', guard(async () => {
   const path = await MatStore.writeLibrary(settings);
   render();
-  UI.toast(`ANSYS kütüphane dosyası güncellendi: İndirilenler/${path}`);
+  UI.toast(t('toast_library_written', MatStore.displayPath(path)));
 }));
 $('folder').addEventListener('input', updatePathPreview);
 $('file-name').addEventListener('input', updatePathPreview);
@@ -525,6 +523,7 @@ api.storage.onChanged.addListener((changes, area) => {
   render();
 });
 
+UI.localize();
 UI.hydrate();
 showView();
 guard(async () => {

@@ -1,6 +1,46 @@
-// Panel ve kütüphane sayfası için küçük arayüz yardımcıları: satır içi SVG simgeler, bildirim, tarih biçimi.
+// Panel ve kütüphane sayfası için küçük arayüz yardımcıları: çeviri (i18n), satır içi SVG simgeler,
+// bildirim, tarih biçimi. Arayüz dili tarayıcının diline göre İngilizce veya Türkçe olur (_locales).
 (function (root) {
   'use strict';
+
+  var api = root.browser || root.chrome;
+  var lang = (api && api.i18n && api.i18n.getUILanguage && api.i18n.getUILanguage()) ||
+    (root.navigator && root.navigator.language) || 'en';
+
+  // Çeviri: _locales/<dil>/messages.json; $1, $2… yerine subs yazılır. Bulunamazsa fallback ya da anahtar döner.
+  function t(key, subs, fallback) {
+    var msg = '';
+    try {
+      if (api && api.i18n) {
+        msg = subs === undefined ? api.i18n.getMessage(key) : api.i18n.getMessage(key, [].concat(subs).map(String));
+      }
+    } catch (e) {
+      msg = '';
+    }
+    return msg || fallback || key;
+  }
+
+  // Sayıya bağlı metin: n === 1 ise "<key>_one" (sayı içermez; diğer değerler $1'den başlar),
+  // aksi hâlde "<key>" ($1 = n, diğer değerler $2'den başlar).
+  function tn(key, n, rest) {
+    var others = [].concat(rest === undefined ? [] : rest);
+    if (n === 1) {
+      var one = t(key + '_one', others.length ? others : undefined, '');
+      if (one && one !== key + '_one') return one;
+    }
+    return t(key, [n].concat(others));
+  }
+
+  // data-i18n (metin), data-i18n-html (biçimli metin; yalnızca eklentinin kendi dil dosyalarından),
+  // data-i18n-placeholder ve data-i18n-title özniteliklerini çevirir.
+  function localize(scope) {
+    var doc = scope || document;
+    doc.querySelectorAll('[data-i18n]').forEach(function (el) { el.textContent = t(el.dataset.i18n); });
+    doc.querySelectorAll('[data-i18n-html]').forEach(function (el) { el.innerHTML = t(el.dataset.i18nHtml); });
+    doc.querySelectorAll('[data-i18n-placeholder]').forEach(function (el) { el.placeholder = t(el.dataset.i18nPlaceholder); });
+    doc.querySelectorAll('[data-i18n-title]').forEach(function (el) { el.title = t(el.dataset.i18nTitle); });
+    if (!scope) document.documentElement.lang = lang.slice(0, 2);
+  }
 
   var NS = 'http://www.w3.org/2000/svg';
   var PATHS = {
@@ -56,8 +96,8 @@
     var d = new Date(iso);
     if (isNaN(d)) return '';
     var opts = withTime === false ? { dateStyle: 'medium' } : { dateStyle: 'medium', timeStyle: 'short' };
-    return d.toLocaleString('tr-TR', opts);
+    return d.toLocaleString(lang, opts);
   }
 
-  root.UI = { icon: icon, hydrate: hydrate, toast: toast, formatDate: formatDate };
+  root.UI = { t: t, tn: tn, localize: localize, lang: lang, icon: icon, hydrate: hydrate, toast: toast, formatDate: formatDate };
 })(typeof globalThis !== 'undefined' ? globalThis : this);
