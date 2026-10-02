@@ -90,7 +90,12 @@ async function storeTests(browser, results) {
       path: S.libraryPath({ folder: '', fileName: '' }),
       byName: S.sortEntries(list, { key: 'name', dir: 'asc' }).map((e) => e.name),
       byDate: S.sortEntries(list, { key: 'addedAt', dir: 'desc' }).map((e) => e.name),
-      warnings: datas.map((d) => S.warningsFor(d).length)
+      warnings: datas.map((d) => S.warningsFor(d).length),
+      groupName: S.normalizeGroupName('  Alüminyum   alaşımları  '),
+      groupPath: S.groupPath({ folder: 'ANSYS', fileName: 'Kutuphane.xml' }, { name: 'Uçak: parçaları' }),
+      groupClash: S.groupPath({ folder: '', fileName: 'Kutuphane.xml' }, { name: 'kutuphane' }),
+      findSelf: !!S.findGroupByName({ groups: [{ id: '1', name: 'Döküm' }] }, 'döküm', '1'),
+      notes: S.toAnsysXml([], 'Kategori: Döküm').includes('<Notes>Kategori: Döküm</Notes>')
     };
   }, results.map((r) => r.data));
   const expect = (cond, label) => { if (!cond) failed++; console.log((cond ? 'TAMAM ' : 'HATA  ') + label); };
@@ -102,6 +107,11 @@ async function storeTests(browser, results) {
   expect(out.byDate.join('|') === 'alüminyum|Çelik B|Çelik A', 'tarihe göre sıralama');
   // fixtures: conditional (tam veri) -> 0 uyarı, overview (Overview sayfası) -> 1 uyarı
   expect(out.warnings.join(',') === '0,1', 'ANSYS uyarıları: ' + out.warnings.join(','));
+  expect(out.groupName === 'Alüminyum alaşımları', 'kategori adı boşlukları temizleniyor');
+  expect(out.groupPath === 'ANSYS/Uçak parçaları.xml', 'kategori dosya yolu: ' + out.groupPath);
+  expect(out.groupClash === 'Kategori_kutuphane.xml', 'ana kütüphaneyle aynı adlı kategori çakışmıyor: ' + out.groupClash);
+  expect(!out.findSelf, 'kategori kendisiyle çakışmış sayılmıyor');
+  expect(out.notes, 'kategori adı ANSYS dosyasının Notes alanına yazılıyor');
 }
 
 const browser = await chromium.launch();

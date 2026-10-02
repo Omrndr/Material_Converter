@@ -254,6 +254,60 @@ def main():
         check([x['name'] for x in rows()] == ['Test Steel'], 'seçilen malzeme onaydan sonra kaldırıldı')
         names = [n.text for n in ET.parse(target).getroot().iterfind('./Materials/MatML_Doc/Material/BulkDetails/Name')]
         check(names == ['Test Steel'], 'kaldırma sonrası kütüphane dosyası güncellendi')
+
+        # --- Kategoriler: seç -> "Kategoriye ekle" -> yeni ad -> kendi adını taşıyan dosya
+        def lib_names(path):
+            root = ET.parse(path).getroot()
+            return [n.text for n in root.iterfind('./Materials/MatML_Doc/Material/BulkDetails/Name')], root.findtext('Notes')
+
+        def groups():
+            return d.execute_script('''return [...document.querySelectorAll('.group-item')].map(b =>
+                [b.querySelector('.name').textContent, b.querySelector('.n').textContent, b.classList.contains('active')])''')
+
+        js("document.getElementById('select-all').click();")
+        js("document.getElementById('assign-group').click();")
+        check(d.execute_script("return document.getElementById('assign-dialog').open"), '"Kategoriye ekle" penceresi açıldı')
+        js('''const i = document.getElementById('assign-new-name'); i.value = 'Test grubu'; i.dispatchEvent(new Event('input'));
+              document.getElementById('assign-confirm').click();''')
+        check(not d.execute_script("return document.getElementById('assign-dialog').open"), 'pencere kapandı')
+        check(['Test grubu', '1', False] in groups(), 'yeni kategori yan panelde: ' + str(groups()))
+        gfile = os.path.join(downloads, 'ANSYS', 'Kutuphane', 'Test grubu.xml')
+        check(os.path.exists(gfile) and lib_names(gfile) == (['Test Steel'], 'Kategori: Test grubu'),
+              'kategori kendi adını taşıyan ANSYS dosyasına yazıldı')
+        check('Test grubu' in rows()[0]['status'] or d.execute_script("return document.querySelector('.group-chips').textContent").strip() == 'Test grubu',
+              'malzeme satırında kategori etiketi görünüyor')
+
+        # Aynı adla ikinci kategori engellenir
+        js("document.getElementById('new-group').click();")
+        js('''document.getElementById('name-input').value = 'test GRUBU'; document.getElementById('name-confirm').click();''')
+        check(d.execute_script("return document.getElementById('name-dialog').open") and
+              'zaten var' in d.find_element(By.ID, 'name-error').text, 'aynı adlı kategori engellendi')
+        js("document.getElementById('name-dialog').close();")
+
+        # Kategoriyi aç, yeniden adlandır
+        js("[...document.querySelectorAll('.group-item')].find(b => b.textContent.includes('Test grubu')).click();")
+        check(d.find_element(By.ID, 'group-head').is_displayed() and d.find_element(By.ID, 'group-title').text == 'Test grubu',
+              'kategori seçilince başlığı ve dosya yolu görünüyor')
+        js("document.getElementById('rename-group').click();")
+        js('''document.getElementById('name-input').value = 'Seçilmiş çelikler'; document.getElementById('name-confirm').click();''')
+        rfile = os.path.join(downloads, 'ANSYS', 'Kutuphane', 'Seçilmiş çelikler.xml')
+        check(d.find_element(By.ID, 'group-title').text == 'Seçilmiş çelikler' and os.path.exists(rfile),
+              'kategori yeniden adlandırıldı ve yeni adla dosyaya yazıldı')
+
+        # Kategoriden çıkar: malzeme kütüphanede kalır, boşalan kategori dosyası güncellenir
+        js("document.getElementById('select-all').click();")
+        js("document.getElementById('unassign-group').click();")
+        check(rows() == [] and lib_names(rfile)[0] == [], 'kategoriden çıkarıldı; boşalan kategori dosyası güncellendi')
+        js("document.querySelector('.group-item[data-group=\"\"]').click();")
+        check([x['name'] for x in rows()] == ['Test Steel'], 'malzeme kütüphanede kalmaya devam ediyor')
+
+        # Kategoriyi sil (onay penceresi)
+        js("[...document.querySelectorAll('.group-item')].find(b => b.textContent.includes('Seçilmiş')).click();")
+        d.execute_script("setTimeout(() => document.getElementById('delete-group').click(), 0);")
+        time.sleep(0.5)
+        d.switch_to.alert.accept()
+        time.sleep(1)
+        check([g[0] for g in groups()] == ['Tüm malzemeler'], 'kategori silindi')
     finally:
         d.quit()
         server.shutdown()

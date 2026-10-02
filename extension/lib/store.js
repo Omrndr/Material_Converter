@@ -11,7 +11,9 @@
     folder: '',
     fileName: 'MatWeb_ANSYS_Kutuphanesi.xml',
     sort: { key: 'addedAt', dir: 'desc' },
-    lastWrittenAt: ''
+    lastWrittenAt: '',
+    // Kullanıcının kendi kategorileri: { id, name, createdAt, members: [uid], lastWrittenAt }
+    groups: []
   };
 
   // ANSYS özellik adlarının kullanıcıya gösterilen Türkçe karşılıkları.
@@ -95,11 +97,11 @@
       .filter(Boolean);
   }
 
-  function toAnsysXml(entries) {
+  function toAnsysXml(entries, notes) {
     var cleaned = entries.map(function (e) {
       return Object.assign({}, e, { sourceUrl: cleanSourceUrl(e.sourceUrl) });
     });
-    return root.MatwebAnsys.toAnsysXml(cleaned, { versionDate: root.MatwebAnsys.versionDate(new Date()) });
+    return root.MatwebAnsys.toAnsysXml(cleaned, { versionDate: root.MatwebAnsys.versionDate(new Date()), notes: notes });
   }
 
   // İndirme arka planda yapılır: panel kapanınca panelde oluşturulan blob adresi geçersiz olur.
@@ -117,6 +119,68 @@
       settings.lastWrittenAt = new Date().toISOString();
       return save({ lastWrittenAt: settings.lastWrittenAt });
     }).then(function () { return path; });
+  }
+
+  // --- Kategoriler (her biri ayrı bir ANSYS kütüphane dosyası) ---
+
+  function normalizeGroupName(name) {
+    return String(name || '').replace(/\s+/g, ' ').trim().slice(0, 80);
+  }
+
+  function findGroupByName(settings, name, exceptId) {
+    var n = normalizeGroupName(name).toLocaleLowerCase('tr');
+    return settings.groups.find(function (g) {
+      return g.id !== exceptId && g.name.toLocaleLowerCase('tr') === n;
+    });
+  }
+
+  // Kategori dosyası kategorinin adını taşır; ana kütüphane dosyasıyla çakışırsa önek alır.
+  function groupFileName(settings, group) {
+    var name = sanitizeFileName(group.name);
+    if (name.toLowerCase() === sanitizeFileName(settings.fileName).toLowerCase()) name = 'Kategori_' + name;
+    return name;
+  }
+
+  function groupPath(settings, group) {
+    var folder = sanitizeFolder(settings.folder);
+    return (folder ? folder + '/' : '') + groupFileName(settings, group);
+  }
+
+  function groupEntries(settings, group) {
+    var members = new Set(group.members);
+    return sortEntries(settings.library.filter(function (m) { return members.has(m.uid); }), { key: 'name', dir: 'asc' });
+  }
+
+  // Kategoriyi kendi adını taşıyan dosyaya yazar. Hiç yazılmamış boş kategori için dosya oluşturulmaz (null);
+  // daha önce yazılmış bir kategori boşalırsa dosyası da boş kütüphane olarak güncellenir.
+  function writeGroup(settings, group) {
+    var entries = groupEntries(settings, group);
+    if (!entries.length && !group.lastWrittenAt) return Promise.resolve(null);
+    var path = groupPath(settings, group);
+    return download(toAnsysXml(entries, 'Kategori: ' + group.name), path, true).then(function () {
+      // Sayfa storage.onChanged ile kategori dizisini yenilemiş olabilir; kaydı kimliğiyle bul.
+      var now = new Date().toISOString();
+      group.lastWrittenAt = now;
+      var stored = settings.groups.find(function (g) { return g.id === group.id; });
+      if (stored) stored.lastWrittenAt = now;
+      return save({ groups: settings.groups });
+    }).then(function () { return path; });
+  }
+
+  // Değişen malzemelerin etkilediği dosyaları yazar: ana kütüphane + bu malzemeleri içeren kategoriler
+  // + groupIds ile ayrıca belirtilen kategoriler. uids verilmezse tüm kategoriler yazılır. Yazılan yolları döndürür.
+  function writeAffected(settings, uids, groupIds) {
+    var paths = [];
+    var touched = uids ? new Set(uids) : null;
+    var extra = new Set(groupIds || []);
+    var chain = settings.library.length
+      ? writeLibrary(settings).then(function (p) { paths.push(p); })
+      : Promise.resolve();
+    settings.groups.forEach(function (g) {
+      if (touched && !extra.has(g.id) && !g.members.some(function (u) { return touched.has(u); })) return;
+      chain = chain.then(function () { return writeGroup(settings, g); }).then(function (p) { if (p) paths.push(p); });
+    });
+    return chain.then(function () { return paths; });
   }
 
   var collator = new Intl.Collator('tr', { sensitivity: 'base', numeric: true });
@@ -156,6 +220,12 @@
     toAnsysXml: toAnsysXml,
     download: download,
     writeLibrary: writeLibrary,
+    normalizeGroupName: normalizeGroupName,
+    findGroupByName: findGroupByName,
+    groupPath: groupPath,
+    groupEntries: groupEntries,
+    writeGroup: writeGroup,
+    writeAffected: writeAffected,
     sortEntries: sortEntries,
     category: category,
     stamp: stamp

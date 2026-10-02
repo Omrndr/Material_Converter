@@ -1,3 +1,5 @@
+<p align="center"><img src="extension/icons/icon-128.png" width="96" alt="Material Converter logosu"></p>
+
 # Material_Converter
 
 MatWeb malzeme veri sayfalarını tek tıkla **ANSYS Workbench Engineering Data** kütüphanesine (XML) ekleyen
@@ -24,6 +26,12 @@ aktarılacağını ve varsa uyarıları gösterir. **Kütüphaneye ekle** ile ma
   durumu. Malzeme seçildiğinde çıkan çubuktan seçilenler **ayrı bir XML olarak indirilebilir** veya kütüphaneden kaldırılabilir.
 - **Kurulum ve ayarlar:** kütüphane dosyasının konumu ve ANSYS'e bağlama adımları. Eklenti ilk kurulduğunda bu sekme
   kendiliğinden açılır.
+
+**Kategoriler.** Malzemeler kütüphane sayfasında kendi kategorilerinize ayrılabilir: listeden seçip **Kategoriye ekle**
+ile mevcut bir kategoriye ekleyin ya da yeni bir kategori adı yazın. Bir malzeme birden fazla kategoride olabilir.
+ANSYS'te bir kütüphane dosyasının içinde klasör bulunmadığından her kategori, **kendi adını taşıyan ayrı bir ANSYS
+kütüphane dosyası** olarak yazılır (ör. `İndirilenler/ANSYS/Malzemeler/Alüminyum alaşımları.xml`) ve ANSYS'e ayrı bir
+kütüphane olarak eklenir. Kategori dosyaları, içindeki malzemeler değiştikçe otomatik güncellenir.
 
 Tarayıcılar eklentilerin yalnızca İndirilenler klasörünün içine yazmasına izin verdiği için konum, İndirilenler altında
 bir alt klasör olarak seçilir (ör. `İndirilenler/ANSYS/Malzemeler/MatWeb_ANSYS_Kutuphanesi.xml`). Dosya her

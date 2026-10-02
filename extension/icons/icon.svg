@@ -1,5 +1,20 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <rect x="4" y="4" width="56" height="56" rx="10" fill="#1f5fa8"/>
-  <text x="32" y="30" font-family="Arial, Helvetica, sans-serif" font-size="17" font-weight="bold" fill="#ffffff" text-anchor="middle">MAT</text>
-  <text x="32" y="50" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="bold" fill="#ffd54a" text-anchor="middle">XML</text>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2a6fbf"/>
+      <stop offset="1" stop-color="#123f75"/>
+    </linearGradient>
+  </defs>
+  <rect width="128" height="128" rx="28" fill="url(#bg)"/>
+  <!-- Malzeme numunesi (izometrik küp) -->
+  <path d="M58 22 96 43 58 64 20 43Z" fill="#eaf2fc"/>
+  <path d="M20 43 58 64v42L20 85Z" fill="#a9c8ee"/>
+  <path d="M96 43 58 64v42l38-21Z" fill="#6c9fdc"/>
+  <!-- 2×2×2 birim hücre bölümleri -->
+  <path d="M77 32.5 39 53.5M39 32.5 77 53.5" stroke="#b9d2f1" stroke-width="2.6"/>
+  <path d="M39 53.5v42M20 64l38 21" stroke="#86afe3" stroke-width="2.6"/>
+  <path d="M77 53.5v42M96 64 58 85" stroke="#4f86c9" stroke-width="2.6"/>
+  <!-- Aktarma rozeti -->
+  <circle cx="97" cy="95" r="22" fill="#ffb547" stroke="#16467f" stroke-width="5"/>
+  <path d="M87 95h19M99 87.5l7.5 7.5-7.5 7.5" fill="none" stroke="#16243a" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

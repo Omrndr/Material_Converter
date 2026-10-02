@@ -84,6 +84,18 @@ function renderMaterial() {
   chip.textContent = props.length ? `ANSYS'e ${props.length} özellik aktarılır` : "ANSYS'e aktarılacak özellik yok";
   chip.title = props.join('\n');
 
+  const groupBox = $('mat-groups');
+  groupBox.textContent = '';
+  if (existing) {
+    settings.groups.filter((g) => g.members.includes(existing.uid)).forEach((g) => {
+      const c = document.createElement('span');
+      c.className = 'chip';
+      c.title = 'Kategori';
+      c.append(UI.icon('folder'), g.name);
+      groupBox.append(c);
+    });
+  }
+
   const box = $('page-warnings');
   box.textContent = '';
   MatStore.warningsFor(data).forEach((w) => {
@@ -116,11 +128,12 @@ async function addCurrent() {
   if (existing) library[library.indexOf(existing)] = entry;
   else library.push(entry);
   await MatStore.save({ library });
-  if (settings.autoUpdate) await MatStore.writeLibrary(settings);
+  const paths = settings.autoUpdate ? await MatStore.writeAffected(settings, [entry.uid]) : [];
   renderMaterial();
   renderLibrary();
   const what = existing ? 'güncellendi' : 'kütüphaneye eklendi';
-  UI.toast(settings.autoUpdate ? `${entry.name} ${what}. ANSYS dosyası güncellendi.` : `${entry.name} ${what}.`);
+  const files = paths.length > 1 ? ` ANSYS dosyası ve ${paths.length - 1} kategori dosyası güncellendi.` : paths.length ? ' ANSYS dosyası güncellendi.' : '';
+  UI.toast(`${entry.name} ${what}.${files}`);
 }
 
 async function exportCurrent() {
