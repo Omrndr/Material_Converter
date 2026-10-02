@@ -1,14 +1,13 @@
-// Araç çubuğu paneli: etkin MatWeb sayfasını okur, malzemeyi kütüphaneye (storage.local) ekler,
-// kütüphaneyi tek bir ANSYS Engineering Data XML dosyası olarak indirir.
+// Araç çubuğu paneli: etkin MatWeb sayfasını okur, malzemeyi kütüphaneye ekler,
+// son eklenenleri gösterir ve tam kütüphane sayfasını açar.
 'use strict';
 
 const api = globalThis.browser ?? globalThis.chrome;
-const LIBRARY_FILE = 'MatWeb_ANSYS_Kutuphanesi.xml';
 const $ = (id) => document.getElementById(id);
+const RECENT_COUNT = 5;
 
 let current = null; // { data, sourceUrl }
-let library = [];
-let autoUpdate = true;
+let settings = null;
 
 function setStatus(text, kind) {
   $('status').textContent = text || '';
@@ -28,109 +27,96 @@ function displayName(name) {
   return (name || 'MatWeb malzemesi').replace(/^Overview of materials for\s+/i, '');
 }
 
-async function loadState() {
-  const s = await api.storage.local.get({ library: [], autoUpdate: true });
-  library = s.library;
-  autoUpdate = s.autoUpdate;
+function materialKey(c) {
+  return c.data.matGuid || MatStore.cleanSourceUrl(c.sourceUrl);
 }
 
-async function saveLibrary() {
-  await api.storage.local.set({ library });
+// Sekme açılmadan panel kapatılırsa istek yarıda kalabiliyor; önce açılmasını bekle.
+async function openTab(url) {
+  try {
+    await api.tabs.create({ url });
+  } finally {
+    window.close();
+  }
 }
 
 function render() {
+  const library = settings.library;
   const list = $('list');
   list.textContent = '';
-  library.forEach((m) => {
+  MatStore.sortEntries(library, { key: 'addedAt', dir: 'desc' }).slice(0, RECENT_COUNT).forEach((m) => {
     const li = document.createElement('li');
-    const name = document.createElement('span');
-    name.textContent = m.name;
-    name.title = m.sourceUrl || m.name;
-    const del = document.createElement('button');
-    del.textContent = '✕';
-    del.title = 'Kütüphaneden çıkar';
-    del.addEventListener('click', () => removeMaterial(m.uid));
-    li.append(name, del);
+    const a = document.createElement('a');
+    a.textContent = m.name;
+    a.href = m.sourceUrl;
+    a.title = 'MatWeb sayfasını aç';
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      openTab(m.sourceUrl);
+    });
+    li.append(a);
+    if (MatStore.warningsFor(m.data).length) {
+      const w = document.createElement('span');
+      w.className = 'warn-icon';
+      w.textContent = '⚠';
+      w.title = MatStore.warningsFor(m.data).join('\n');
+      li.append(w);
+    }
     list.append(li);
   });
-  $('count').textContent = library.length ? `(${library.length})` : '';
+  $('count').textContent = library.length ? `(toplam ${library.length})` : '';
   $('empty').hidden = library.length > 0;
   $('download').disabled = !library.length;
-  $('clear').disabled = !library.length;
-  $('auto').checked = autoUpdate;
+  $('path').textContent = 'Kütüphane dosyası: İndirilenler/' + MatStore.libraryPath(settings);
 
   const known = current && library.some((m) => m.key === materialKey(current));
   $('add').textContent = known ? 'Kütüphanede güncelle' : 'Kütüphaneye ekle';
 }
 
-function materialKey(c) {
-  return c.data.matGuid || c.sourceUrl;
-}
-
-async function download(xml, filename, overwrite) {
-  const res = await api.runtime.sendMessage({ type: 'download', xml, filename, overwrite });
-  if (!res || !res.ok) throw new Error((res && res.error) || 'İndirme başlatılamadı');
-}
-
-async function downloadLibrary() {
-  const xml = MatwebAnsys.toAnsysXml(library, { versionDate: MatwebAnsys.versionDate(new Date()) });
-  await download(xml, LIBRARY_FILE, true);
+function renderWarnings(warnings) {
+  const ul = $('page-warnings');
+  ul.textContent = '';
+  warnings.forEach((w) => {
+    const li = document.createElement('li');
+    li.textContent = w;
+    ul.append(li);
+  });
 }
 
 async function addCurrent() {
-  if (!current) return;
   const key = materialKey(current);
+  const library = settings.library;
   const existing = library.find((m) => m.key === key);
+  const now = new Date().toISOString();
   const entry = {
     uid: existing ? existing.uid : crypto.randomUUID(),
     key,
     name: displayName(current.data.name),
-    sourceUrl: current.sourceUrl,
-    addedAt: new Date().toISOString(),
+    sourceUrl: MatStore.cleanSourceUrl(current.sourceUrl),
+    addedAt: existing ? existing.addedAt : now,
+    updatedAt: now,
     data: current.data
   };
   if (existing) library[library.indexOf(existing)] = entry;
   else library.push(entry);
-  await saveLibrary();
+  await MatStore.save({ library });
   render();
   const what = existing ? 'güncellendi' : 'eklendi';
-  if (autoUpdate) {
-    await downloadLibrary();
-    setStatus(`“${entry.name}” ${what}; kütüphane dosyası yazıldı.`, 'ok');
+  const warn = MatStore.warningsFor(entry.data).length ? ' (uyarıları kontrol edin)' : '';
+  if (settings.autoUpdate) {
+    const path = await MatStore.writeLibrary(settings);
+    setStatus(`“${entry.name}” ${what}${warn}; İndirilenler/${path} güncellendi.`, warn ? 'warn' : 'ok');
   } else {
-    setStatus(`“${entry.name}” ${what}.`, 'ok');
+    setStatus(`“${entry.name}” ${what}${warn}.`, warn ? 'warn' : 'ok');
   }
-}
-
-async function removeMaterial(uid) {
-  library = library.filter((m) => m.uid !== uid);
-  await saveLibrary();
-  render();
-  if (autoUpdate && library.length) await downloadLibrary();
-  setStatus('Malzeme çıkarıldı.', 'ok');
-}
-
-let clearArmed = false;
-async function clearLibrary() {
-  // Firefox panellerinde confirm() çalışmadığı için iki tıklamalı onay.
-  if (!clearArmed) {
-    clearArmed = true;
-    $('clear').textContent = 'Emin misiniz?';
-    setTimeout(() => {
-      clearArmed = false;
-      $('clear').textContent = 'Temizle';
-    }, 3000);
-    return;
-  }
-  library = [];
-  await saveLibrary();
-  render();
-  setStatus('Kütüphane temizlendi.', 'ok');
 }
 
 async function exportCurrent() {
-  const xml = MatwebXml.toXml(current.data, { sourceUrl: current.sourceUrl, exportedAt: new Date().toISOString() });
-  await download(xml, MatwebXml.fileNameFor(current.data.name), false);
+  const xml = MatwebXml.toXml(current.data, {
+    sourceUrl: MatStore.cleanSourceUrl(current.sourceUrl),
+    exportedAt: new Date().toISOString()
+  });
+  await MatStore.download(xml, MatwebXml.fileNameFor(current.data.name), false);
   setStatus('Genel XML indirildi.', 'ok');
 }
 
@@ -152,6 +138,7 @@ async function readActiveTab() {
   current = { data: result, sourceUrl: tab.url };
   $('page-name').textContent = displayName(result.name);
   $('page-name').className = '';
+  renderWarnings(MatStore.warningsFor(result));
   $('add').disabled = false;
   $('export-one').disabled = false;
 }
@@ -169,18 +156,14 @@ function guard(fn) {
 
 $('add').addEventListener('click', guard(addCurrent));
 $('export-one').addEventListener('click', guard(exportCurrent));
+$('open-library').addEventListener('click', () => openTab(api.runtime.getURL('library.html')));
 $('download').addEventListener('click', guard(async () => {
-  await downloadLibrary();
-  setStatus('ANSYS kütüphanesi indirildi.', 'ok');
-}));
-$('clear').addEventListener('click', guard(clearLibrary));
-$('auto').addEventListener('change', guard(async () => {
-  autoUpdate = $('auto').checked;
-  await api.storage.local.set({ autoUpdate });
+  const path = await MatStore.writeLibrary(settings);
+  setStatus(`İndirilenler/${path} yazıldı.`, 'ok');
 }));
 
 guard(async () => {
-  await loadState();
+  settings = await MatStore.load();
   render();
   await readActiveTab();
   render();

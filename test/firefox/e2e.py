@@ -26,6 +26,7 @@ import fake_matweb
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 EXT = os.path.normpath(os.path.join(HERE, '..', '..', 'extension'))
+ADDON_ID = 'matweb-xml@material-converter'
 WIDGET = 'matweb-xml_material-converter-browser-action'
 PORT = 8765
 PAC = ('data:text/plain,function FindProxyForURL(u,h){return h.indexOf("matweb.com")>=0?'
@@ -77,7 +78,8 @@ def main():
           const btn = document.getElementById(arguments[0]);
           return {
             page, addDisabled: doc.getElementById('add').disabled, add: doc.getElementById('add').textContent,
-            items: [...doc.querySelectorAll('#list li span')].map(s => s.textContent),
+            items: [...doc.querySelectorAll('#list li a')].map(a => a.textContent),
+            warnings: [...doc.querySelectorAll('#page-warnings li')].map(li => li.textContent),
             status: doc.getElementById('status').textContent,
             badge: (btn.querySelector('.toolbarbutton-badge') || {}).textContent || ''
           };''', WIDGET)
@@ -129,8 +131,9 @@ def main():
         visit('b' * 32)
         st = open_popup()
         check(st['page'] == 'Test Steel', '"Overview" sayfa adı sadeleştirildi')
+        check(len(st['warnings']) == 1 and 'Overview' in st['warnings'][0], 'Overview sayfası için uyarı gösterildi')
         st = click('add')
-        check(st['items'] == ['Test Alloy T6; T651', 'Test Steel'] and st['badge'] == '2', 'ikinci malzeme eklendi, rozet 2')
+        check(st['items'] == ['Test Steel', 'Test Alloy T6; T651'] and st['badge'] == '2', 'ikinci malzeme eklendi (en yeni üstte), rozet 2')
         st = click('export-one')
         check('Genel XML' in st['status'], 'genel XML indirildi')
         close_popup()
@@ -149,6 +152,71 @@ def main():
         names = [n.text for n in root.iterfind('./Materials/MatML_Doc/Material/BulkDetails/Name')]
         check(root.tag == 'EngineeringData' and names == ['Test Alloy T6; T651', 'Test Steel'],
               'ANSYS kütüphanesinde iki malzeme var')
+
+        # --- Paneldeki malzeme adı bağlantısı yeni sekmede MatWeb sayfasını açar
+        handles = set(d.window_handles)
+        open_popup()
+        chrome('''document.querySelector('browser[webextension-view-type="popup"]')
+                    .contentDocument.querySelector('#list li a').click();''')
+        time.sleep(1.5)
+        new = set(d.window_handles) - handles
+        check(len(new) == 1, 'paneldeki bağlantı yeni sekme açtı')
+        if new:
+            d.switch_to.window(new.pop())
+            check(d.current_url == 'http://www.matweb.com/search/DataSheet.aspx?MatGUID=' + 'b' * 32,
+                  'bağlantı temizlenmiş MatWeb adresine gidiyor: ' + d.current_url)
+
+        # --- Kütüphane sayfası (ayrı sekme)
+        lib_url = chrome('return WebExtensionPolicy.getByID(arguments[0]).getURL("library.html")', ADDON_ID)
+        d.get(lib_url)
+        time.sleep(1)
+
+        def rows():
+            return d.execute_script('''return [...document.querySelectorAll('#rows tr')].map(tr => ({
+                name: tr.children[1].textContent, href: tr.querySelector('a').getAttribute('href'),
+                warn: tr.children[4].textContent }))''')
+
+        def js(code, *args):
+            r = d.execute_script(code, *args)
+            time.sleep(1.2)
+            return r
+
+        r = rows()
+        check([x['name'] for x in r] == ['Test Steel', 'Test Alloy T6; T651'], 'kütüphane sayfası: varsayılan sıra en yeni üstte')
+        check('Overview' in r[0]['warn'] and r[1]['warn'] == '', 'kütüphane sayfası: uyarı sütunu')
+        js("const s = document.getElementById('sort'); s.value = 'name:asc'; s.dispatchEvent(new Event('change'));")
+        check([x['name'] for x in rows()] == ['Test Alloy T6; T651', 'Test Steel'], 'ada göre sıralama (A → Z)')
+        js("document.querySelector('th[data-sort=name]').click();")
+        check([x['name'] for x in rows()] == ['Test Steel', 'Test Alloy T6; T651'], 'başlığa tıklayınca sıra tersine döndü')
+        js("const q = document.getElementById('search'); q.value = 'alloy'; q.dispatchEvent(new Event('input'));")
+        check([x['name'] for x in rows()] == ['Test Alloy T6; T651'], 'arama süzüyor')
+        js("const q = document.getElementById('search'); q.value = ''; q.dispatchEvent(new Event('input'));")
+
+        # Yalnızca seçilen malzemeyi içeren XML
+        js("document.querySelectorAll('#rows tr')[1].querySelector('input[type=checkbox]').click();")
+        js("document.getElementById('download-selected').click();")
+        sel = [f for f in os.listdir(downloads) if f.startswith('MatWeb_Secim_')]
+        check(len(sel) == 1, 'seçili malzemeler ayrı dosyaya indirildi: ' + ', '.join(sel))
+        if sel:
+            names = [n.text for n in ET.parse(os.path.join(downloads, sel[0])).getroot()
+                     .iterfind('./Materials/MatML_Doc/Material/BulkDetails/Name')]
+            check(names == ['Test Alloy T6; T651'], 'seçim dosyasında yalnızca seçilen malzeme var')
+
+        # İndirme konumu ayarı: İndirilenler/ANSYS/Kutuphane altında sabit dosya
+        js('''document.getElementById('folder').value = '../ANSYS/Kutuphane';
+              document.getElementById('save-settings').click();''')
+        check(d.find_element(By.ID, 'path-preview').text == 'İndirilenler/ANSYS/Kutuphane/' + LIBRARY,
+              'konum ayarı kaydedildi ve güvenli hâle getirildi')
+        js("document.getElementById('write-library').click();")
+        target = os.path.join(downloads, 'ANSYS', 'Kutuphane', LIBRARY)
+        check(os.path.exists(target), 'kütüphane ayarlanan alt klasöre yazıldı')
+
+        # Seçilileri sil (iki tıklamalı onay) -> otomatik güncelleme yeni konuma yazar
+        js("document.getElementById('remove-selected').click();")
+        js("document.getElementById('remove-selected').click();")
+        check([x['name'] for x in rows()] == ['Test Steel'], 'seçili malzeme silindi')
+        names = [n.text for n in ET.parse(target).getroot().iterfind('./Materials/MatML_Doc/Material/BulkDetails/Name')]
+        check(names == ['Test Steel'], 'silme sonrası kütüphane dosyası güncellendi')
     finally:
         d.quit()
         server.shutdown()

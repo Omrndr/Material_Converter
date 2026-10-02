@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MatWeb → ANSYS Kütüphanesi</title>
+  <link rel="stylesheet" href="library.css">
+</head>
+<body>
+  <header>
+    <h1>MatWeb → ANSYS Kütüphanesi</h1>
+    <span id="count" class="muted"></span>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>Kütüphane dosyasının konumu</h2>
+      <p class="muted">
+        Tarayıcılar eklentilerin yalnızca <b>İndirilenler</b> klasörünün içine yazmasına izin verir.
+        Aşağıda bir alt klasör ve dosya adı belirleyin; kütüphane her güncellendiğinde aynı dosyanın üzerine yazılır.
+        ANSYS'e bu dosyayı bir kez tanıtmanız yeterlidir.
+      </p>
+      <div class="form">
+        <label>Alt klasör
+          <span class="prefix">İndirilenler/</span>
+          <input id="folder" type="text" placeholder="ör. ANSYS/Malzemeler (boş = doğrudan İndirilenler)">
+        </label>
+        <label>Dosya adı
+          <input id="file-name" type="text">
+        </label>
+        <label class="check"><input type="checkbox" id="auto"> Malzeme eklenince/silinince dosyayı otomatik güncelle</label>
+      </div>
+      <div class="row">
+        <button id="save-settings" class="primary">Kaydet</button>
+        <button id="write-library">Kütüphaneyi şimdi yaz</button>
+        <span class="muted">Yol: <code id="path-preview"></code></span>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="toolbar">
+        <input id="search" type="search" placeholder="Ada veya kategoriye göre ara…">
+        <label>Sırala
+          <select id="sort">
+            <option value="addedAt:desc">Eklenme tarihi (yeni → eski)</option>
+            <option value="addedAt:asc">Eklenme tarihi (eski → yeni)</option>
+            <option value="name:asc">Ad (A → Z)</option>
+            <option value="name:desc">Ad (Z → A)</option>
+            <option value="category:asc">Kategori (A → Z)</option>
+            <option value="category:desc">Kategori (Z → A)</option>
+          </select>
+        </label>
+        <span class="spacer"></span>
+        <button id="download-selected" class="primary" disabled>Seçilileri XML indir</button>
+        <button id="remove-selected" disabled>Seçilileri sil</button>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th class="col-check"><input type="checkbox" id="select-all" title="Görünenlerin tümünü seç"></th>
+            <th data-sort="name">Malzeme</th>
+            <th data-sort="category">Kategori</th>
+            <th data-sort="addedAt">Eklenme</th>
+            <th>ANSYS uyarıları</th>
+            <th class="col-del"></th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+      <p id="empty" class="muted" hidden>Kütüphane boş. MatWeb'de bir malzeme sayfası açıp araç çubuğundaki düğmeden ekleyin.</p>
+      <p id="no-match" class="muted" hidden>Aramaya uyan malzeme yok.</p>
+    </section>
+
+    <div id="status" role="status"></div>
+  </main>
+
+  <script src="lib/xml-writer.js"></script>
+  <script src="lib/ansys-writer.js"></script>
+  <script src="lib/store.js"></script>
+  <script src="library.js"></script>
+</body>
+</html>

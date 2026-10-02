@@ -8,7 +8,7 @@ import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
-const libs = ['matweb-parser.js', 'xml-writer.js', 'ansys-writer.js'].map((f) => path.join(here, '..', 'extension', 'lib', f));
+const libs = ['matweb-parser.js', 'xml-writer.js', 'ansys-writer.js', 'store.js'].map((f) => path.join(here, '..', 'extension', 'lib', f));
 const update = process.argv.includes('--update');
 const expectedDir = path.join(here, 'expected');
 let failed = 0;
@@ -76,6 +76,34 @@ function toEntries(results) {
   }));
 }
 
+// Kütüphane yardımcılarının (store.js) birim testleri.
+async function storeTests(browser, results) {
+  const out = await withLibs(browser, 'about:blank', (datas) => {
+    const S = MatStore;
+    const entry = (name, addedAt, cat) => ({ name, addedAt, data: { categories: [cat] } });
+    const list = [entry('Çelik B', '2026-01-02', 'Steel'), entry('alüminyum', '2026-01-03', 'Aluminum'), entry('Çelik A', '2026-01-01', 'Steel')];
+    return {
+      clean: S.cleanSourceUrl('https://www.matweb.com/search/DataSheet.aspx?MatGUID=abc&ckck=1'),
+      cleanLower: S.cleanSourceUrl('https://www.matweb.com/search/datasheet.aspx?matguid=abc'),
+      folder: S.sanitizeFolder(' ../ANSYS\\Malzeme:ler/./ '),
+      file: S.sanitizeFileName('kutuphane'),
+      path: S.libraryPath({ folder: '', fileName: '' }),
+      byName: S.sortEntries(list, { key: 'name', dir: 'asc' }).map((e) => e.name),
+      byDate: S.sortEntries(list, { key: 'addedAt', dir: 'desc' }).map((e) => e.name),
+      warnings: datas.map((d) => S.warningsFor(d).length)
+    };
+  }, results.map((r) => r.data));
+  const expect = (cond, label) => { if (!cond) failed++; console.log((cond ? 'TAMAM ' : 'HATA  ') + label); };
+  expect(out.clean === 'https://www.matweb.com/search/DataSheet.aspx?MatGUID=abc', 'kaynak adresi temizleniyor');
+  expect(out.cleanLower === 'https://www.matweb.com/search/datasheet.aspx?MatGUID=abc', 'küçük harfli matguid korunuyor');
+  expect(out.folder === 'ANSYS/Malzemeler', 'klasör yolu güvenli hâle getiriliyor: ' + out.folder);
+  expect(out.file === 'kutuphane.xml' && out.path === 'MatWeb_ANSYS_Kutuphanesi.xml', 'dosya adı varsayılanları');
+  expect(out.byName.join('|') === 'alüminyum|Çelik A|Çelik B', 'Türkçe ada göre sıralama: ' + out.byName.join('|'));
+  expect(out.byDate.join('|') === 'alüminyum|Çelik B|Çelik A', 'tarihe göre sıralama');
+  // fixtures: conditional (tam veri) -> 0 uyarı, overview (Overview sayfası) -> 1 uyarı
+  expect(out.warnings.join(',') === '0,1', 'ANSYS uyarıları: ' + out.warnings.join(','));
+}
+
 const browser = await chromium.launch();
 try {
   fs.mkdirSync(expectedDir, { recursive: true });
@@ -86,6 +114,7 @@ try {
     results.push(r);
     await check(browser, path.basename(file), r.xml, path.join(expectedDir, path.basename(file).replace(/\.html?$/i, '.xml')));
   }
+  await storeTests(browser, results);
   const lib = await ansysLibrary(browser, toEntries(results));
   await check(browser, 'ANSYS kütüphanesi', lib, path.join(expectedDir, 'ansys-library.xml'));
 
