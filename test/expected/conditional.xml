@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Material source="MatWeb" sourceUrl="https://www.matweb.com/test" formatVersion="1">
+  <Name>Test Alloy T6; T651</Name>
+  <Categories>
+    <Category>Metal</Category>
+    <Category>Nonferrous Metal</Category>
+  </Categories>
+  <KeyWords>
+    <KeyWord>Test Alloy T6</KeyWord>
+    <KeyWord>UNS A00000</KeyWord>
+    <KeyWord>AA0000-T6</KeyWord>
+  </KeyWords>
+  <PropertyGroups>
+    <PropertyGroup name="Mechanical Properties">
+      <Property name="Tensile Strength, Ultimate">
+        <DataPoint>
+          <Metric value="500" unit="MPa" text="500 MPa"/>
+          <English value="72500" unit="psi" text="72500 psi"/>
+          <Comment>AA; Typical</Comment>
+        </DataPoint>
+        <DataPoint>
+          <Metric value="40.0" unit="MPa" text="40.0 MPa">
+            <Condition name="Temperature" value="370" unit="°C"/>
+          </Metric>
+          <English value="5800" unit="psi" text="5800 psi">
+            <Condition name="Temperature" value="698" unit="°F"/>
+          </English>
+        </DataPoint>
+        <DataPoint>
+          <Metric value="700" unit="MPa" text="700 MPa">
+            <Condition name="Temperature" value="-196" unit="°C"/>
+          </Metric>
+          <English value="102000" unit="psi" text="102000 psi">
+            <Condition name="Temperature" value="-321" unit="°F"/>
+          </English>
+        </DataPoint>
+        <DataPoint>
+          <Metric qualifier="&gt;=" value="460" unit="MPa" text="&gt;= 460 MPa">
+            <Condition name="Thickness" min="88.9" max="102" unit="mm"/>
+          </Metric>
+          <English qualifier="&gt;=" value="66700" unit="psi" text="&gt;= 66700 psi">
+            <Condition name="Thickness" min="3.50" max="4.00" unit="in"/>
+          </English>
+          <Comment>Plate; T62, T651</Comment>
+        </DataPoint>
+      </Property>
+      <Property name="Fatigue Strength">
+        <DataPoint>
+          <Metric value="160" unit="MPa" text="160 MPa">
+            <Condition name="# of Cycles" value="5.00e+8"/>
+          </Metric>
+          <English value="23200" unit="psi" text="23200 psi">
+            <Condition name="# of Cycles" value="5.00e+8"/>
+          </English>
+          <Comment>completely reversed stress</Comment>
+        </DataPoint>
+      </Property>
+    </PropertyGroup>
+    <PropertyGroup name="Processing Properties">
+      <Property name="Annealing Temperature">
+        <DataPoint>
+          <Metric value="413" unit="°C" text="413 °C"/>
+          <English value="775" unit="°F" text="775 °F"/>
+        </DataPoint>
+      </Property>
+      <Property name="Solution Temperature">
+        <DataPoint>
+          <Metric text="Yes"/>
+          <English text="Yes"/>
+        </DataPoint>
+      </Property>
+    </PropertyGroup>
+  </PropertyGroups>
+</Material>

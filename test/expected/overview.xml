@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Material source="MatWeb" sourceUrl="https://www.matweb.com/test" formatVersion="1">
+  <Name>Overview of materials for Test Steel</Name>
+  <Categories>
+    <Category>Metal</Category>
+    <Category>Ferrous Metal</Category>
+    <Category>Test Steel</Category>
+  </Categories>
+  <Notes>First note line &amp; &quot;quoted&quot; text.
+Second line &lt;tag&gt;.</Notes>
+  <PropertyGroups>
+    <PropertyGroup name="Physical Properties">
+      <Property name="Density">
+        <DataPoint>
+          <Metric min="7.80" max="7.90" unit="g/cc" text="7.80 - 7.90 g/cc"/>
+          <English min="0.282" max="0.285" unit="lb/in³" text="0.282 - 0.285 lb/in³"/>
+          <Comment>Average value: 7.85 g/cc Grade Count:10</Comment>
+        </DataPoint>
+      </Property>
+    </PropertyGroup>
+    <PropertyGroup name="Mechanical Properties">
+      <Property name="Hardness, Brinell">
+        <DataPoint>
+          <Metric min="170" max="360" text="170 - 360"/>
+          <English min="170" max="360" text="170 - 360"/>
+          <Comment>Average value: 280 Grade Count:10</Comment>
+        </DataPoint>
+      </Property>
+      <Property name="Poissons Ratio">
+        <DataPoint>
+          <Metric value="0.29" text="0.29"/>
+          <English value="0.29" text="0.29"/>
+        </DataPoint>
+      </Property>
+      <Property name="Modulus of Elasticity">
+        <DataPoint>
+          <Metric value="200" unit="GPa" text="200 GPa"/>
+          <English value="29000" unit="ksi" text="29000 ksi"/>
+        </DataPoint>
+      </Property>
+    </PropertyGroup>
+    <PropertyGroup name="Component Elements Properties">
+      <Property name="Carbon, C">
+        <DataPoint>
+          <Metric qualifier="&lt;=" value="0.50" unit="%" text="&lt;= 0.50 %"/>
+          <English qualifier="&lt;=" value="0.50" unit="%" text="&lt;= 0.50 %"/>
+        </DataPoint>
+      </Property>
+    </PropertyGroup>
+  </PropertyGroups>
+</Material>

@@ -1,0 +1,5 @@
+node_modules
+test/private/
+dist/
+*.zip
+*.xpi
