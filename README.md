@@ -131,6 +131,10 @@ The interface also has a dark theme that follows your system setting.
   ANSYS Engineering Data. Use **Download all data as a separate XML** if you need them.
 - **Check your data.** Always review material properties before using them in an engineering analysis.
 
+## Privacy
+
+Material Converter does not collect or send any data. See the [privacy policy](PRIVACY.md).
+
 ## Disclaimer
 
 Material Converter is an independent project. It is **not affiliated with, endorsed by or sponsored by MatWeb, LLC or

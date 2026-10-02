@@ -31,12 +31,35 @@
     return t(key, [n].concat(others));
   }
 
+  // Dil dosyasındaki basit biçimli metni (b, i, code, span, a) innerHTML kullanmadan, izinli etiket ve
+  // öznitelikleri tek tek kopyalayarak yerleştirir.
+  var RICH_TAGS = { B: ['id'], I: [], CODE: [], SPAN: ['id'], A: ['href', 'target', 'rel', 'id'] };
+  function setRichText(el, html) {
+    var parsed = new DOMParser().parseFromString('<body>' + html + '</body>', 'text/html').body;
+    function copy(from, to) {
+      for (var n = from.firstChild; n; n = n.nextSibling) {
+        if (n.nodeType === 3) {
+          to.appendChild(document.createTextNode(n.nodeValue));
+        } else if (n.nodeType === 1 && RICH_TAGS[n.tagName]) {
+          var c = document.createElement(n.tagName.toLowerCase());
+          RICH_TAGS[n.tagName].forEach(function (a) { if (n.hasAttribute(a)) c.setAttribute(a, n.getAttribute(a)); });
+          copy(n, c);
+          to.appendChild(c);
+        } else if (n.nodeType === 1) {
+          copy(n, to); // izin verilmeyen etiket: yalnızca içindeki metin
+        }
+      }
+    }
+    el.textContent = '';
+    copy(parsed, el);
+  }
+
   // data-i18n (metin), data-i18n-html (biçimli metin; yalnızca eklentinin kendi dil dosyalarından),
   // data-i18n-placeholder ve data-i18n-title özniteliklerini çevirir.
   function localize(scope) {
     var doc = scope || document;
     doc.querySelectorAll('[data-i18n]').forEach(function (el) { el.textContent = t(el.dataset.i18n); });
-    doc.querySelectorAll('[data-i18n-html]').forEach(function (el) { el.innerHTML = t(el.dataset.i18nHtml); });
+    doc.querySelectorAll('[data-i18n-html]').forEach(function (el) { setRichText(el, t(el.dataset.i18nHtml)); });
     doc.querySelectorAll('[data-i18n-placeholder]').forEach(function (el) { el.placeholder = t(el.dataset.i18nPlaceholder); });
     doc.querySelectorAll('[data-i18n-title]').forEach(function (el) { el.title = t(el.dataset.i18nTitle); });
     if (!scope) document.documentElement.lang = lang.slice(0, 2);

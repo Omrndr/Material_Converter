@@ -1,9 +1,9 @@
 {
   "ext_name": {
-    "message": "Material Converter (MatWeb → ANSYS)"
+    "message": "Material Converter"
   },
   "ext_description": {
-    "message": "MatWeb malzeme sayfalarını tek tıkla ANSYS Engineering Data kütüphanesine (XML) aktarır."
+    "message": "MatWeb malzeme sayfalarını tek tıkla ANSYS Engineering Data kütüphanesine (XML) aktarır. MatWeb ve ANSYS ile bağlantılı değildir."
   },
   "action_title": {
     "message": "Material Converter – malzemeyi ANSYS kütüphanesine ekle"
@@ -490,5 +490,11 @@
   },
   "toast_removed_from_group_one": {
     "message": "1 malzeme \"$1\" kategorisinden çıkarıldı (kütüphanede kalmaya devam eder)."
+  },
+  "popup_read_failed": {
+    "message": "Bu sayfa okunamadı."
+  },
+  "popup_read_failed_hint": {
+    "message": "Sayfanın yüklenmesi bitene kadar bekleyip düğmeye tekrar tıklayın."
   }
 }

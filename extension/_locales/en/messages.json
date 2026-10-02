@@ -1,9 +1,9 @@
 {
   "ext_name": {
-    "message": "Material Converter (MatWeb → ANSYS)"
+    "message": "Material Converter"
   },
   "ext_description": {
-    "message": "Adds material data sheets from MatWeb to an ANSYS Engineering Data library (XML) in one click."
+    "message": "Adds material data sheets from MatWeb to an ANSYS Engineering Data library (XML) in one click. Not affiliated with MatWeb or ANSYS."
   },
   "action_title": {
     "message": "Material Converter – add this material to your ANSYS library"
@@ -490,5 +490,11 @@
   },
   "toast_removed_from_group_one": {
     "message": "1 material removed from “$1” (it stays in the library)."
+  },
+  "popup_read_failed": {
+    "message": "This page could not be read."
+  },
+  "popup_read_failed_hint": {
+    "message": "Wait until the page has finished loading, then click the button again."
   }
 }

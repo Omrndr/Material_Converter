@@ -184,5 +184,13 @@ UI.hydrate();
 guard(async () => {
   settings = await MatStore.load();
   renderLibrary();
-  await readActiveTab();
+  try {
+    await readActiveTab();
+  } catch (e) {
+    // Sayfa okunamadı (ör. henüz yükleniyor ya da tarayıcı erişime izin vermiyor): "okunuyor"da takılı kalma.
+    console.error(e);
+    $('nodata-lead').textContent = t('popup_read_failed');
+    $('nodata-hint').textContent = t('popup_read_failed_hint');
+    showState('nodata');
+  }
 })();
