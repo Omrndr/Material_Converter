@@ -37,4 +37,10 @@ api.storage.onChanged.addListener((changes, area) => {
   if (area === 'local' && changes.library) updateBadge();
 });
 api.runtime.onStartup.addListener(updateBadge);
-api.runtime.onInstalled.addListener(updateBadge);
+api.runtime.onInstalled.addListener((details) => {
+  updateBadge();
+  // İlk kurulumda kullanıcıyı kurulum rehberine götür.
+  if (details && details.reason === 'install') {
+    api.tabs.create({ url: api.runtime.getURL('library.html#kurulum') });
+  }
+});

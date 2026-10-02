@@ -10,7 +10,22 @@
     autoUpdate: true,
     folder: '',
     fileName: 'MatWeb_ANSYS_Kutuphanesi.xml',
-    sort: { key: 'addedAt', dir: 'desc' }
+    sort: { key: 'addedAt', dir: 'desc' },
+    lastWrittenAt: ''
+  };
+
+  // ANSYS özellik adlarının kullanıcıya gösterilen Türkçe karşılıkları.
+  var PROPERTY_LABELS = {
+    'Density': 'Yoğunluk',
+    'Elasticity': 'Elastisite (E, ν)',
+    'Tensile Yield Strength': 'Akma dayanımı',
+    'Tensile Ultimate Strength': 'Çekme dayanımı',
+    'Compressive Yield Strength': 'Basma akma dayanımı',
+    'Compressive Ultimate Strength': 'Basma dayanımı',
+    'Coefficient of Thermal Expansion': 'Isıl genleşme',
+    'Specific Heat': 'Özgül ısı',
+    'Thermal Conductivity': 'Isıl iletkenlik',
+    'Resistivity': 'Elektriksel direnç'
   };
 
   function load() {
@@ -73,6 +88,13 @@
     return warnings;
   }
 
+  // ANSYS'e aktarılacak özelliklerin Türkçe adları.
+  function ansysProperties(data) {
+    return root.MatwebAnsys.buildProperties(data).props
+      .map(function (p) { return PROPERTY_LABELS[p.name]; })
+      .filter(Boolean);
+  }
+
   function toAnsysXml(entries) {
     var cleaned = entries.map(function (e) {
       return Object.assign({}, e, { sourceUrl: cleanSourceUrl(e.sourceUrl) });
@@ -91,7 +113,10 @@
   // Tüm kütüphaneyi ayarlardaki sabit yola yazar ve yazılan yolu döndürür.
   function writeLibrary(settings) {
     var path = libraryPath(settings);
-    return download(toAnsysXml(settings.library), path, true).then(function () { return path; });
+    return download(toAnsysXml(settings.library), path, true).then(function () {
+      settings.lastWrittenAt = new Date().toISOString();
+      return save({ lastWrittenAt: settings.lastWrittenAt });
+    }).then(function () { return path; });
   }
 
   var collator = new Intl.Collator('tr', { sensitivity: 'base', numeric: true });
@@ -127,6 +152,7 @@
     sanitizeFileName: sanitizeFileName,
     libraryPath: libraryPath,
     warningsFor: warningsFor,
+    ansysProperties: ansysProperties,
     toAnsysXml: toAnsysXml,
     download: download,
     writeLibrary: writeLibrary,

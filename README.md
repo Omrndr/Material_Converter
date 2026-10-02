@@ -11,28 +11,23 @@ tarayıcı eklentisi.
 
 ## Kullanım
 
-1. Firefox'ta MatWeb'de bir malzemenin veri sayfasını açın (`matweb.com/search/DataSheet.aspx?...`).
-2. Araç çubuğundaki **MAT/XML** düğmesine tıklayın, açılan panelde **Kütüphaneye ekle**'ye basın.
-   Malzemede ANSYS için eksik veri varsa (ör. E ve ν yok) ya da sayfa bir seri özeti ("Overview") ise panel uyarır.
-3. Kütüphane dosyası her eklemede aynı konuma, aynı adla yeniden yazılır (varsayılan:
-   `İndirilenler/MatWeb_ANSYS_Kutuphanesi.xml`).
-4. Aynı malzeme tekrar eklenirse kopya oluşmaz, mevcut kayıt güncellenir.
-5. **Genel XML** düğmesi, sayfadaki tüm veriyi (sertlik, kompozisyon, kalınlığa bağlı değerler dahil)
-   ayrıntılı genel XML olarak ayrıca indirir.
+Eklenti iki ekrandan oluşur:
 
-Paneldeki malzeme adları MatWeb sayfasına bağlantıdır. Düğme üzerindeki rozet kütüphanedeki malzeme sayısını gösterir.
+**1. Araç çubuğu paneli: malzeme eklemek için.** MatWeb'de bir malzemenin veri sayfası açıkken araç çubuğundaki
+**Material Converter** düğmesine tıklayın. Panel malzemenin adını, kütüphanede olup olmadığını, ANSYS'e kaç özellik
+aktarılacağını ve varsa uyarıları gösterir. **Kütüphaneye ekle** ile malzeme eklenir ve ANSYS dosyası güncellenir.
+**Tüm veriyi ayrı XML olarak indir**, sayfadaki her şeyi (sertlik, kompozisyon, koşullu değerler) ayrı bir dosyaya yazar.
 
-### Kütüphane sayfası
+**2. Kütüphane sayfası: kütüphaneyi yönetmek için.** Paneldeki **Kütüphaneyi yönet** düğmesi ayrı bir sekme açar:
 
-Paneldeki **Kütüphaneyi aç** düğmesi tüm malzemeleri ayrı bir sekmede listeler:
+- **Malzemeler:** arama, ada/kategoriye/tarihe göre sıralama, MatWeb sayfasına bağlantılar, her malzemenin ANSYS
+  durumu. Malzeme seçildiğinde çıkan çubuktan seçilenler **ayrı bir XML olarak indirilebilir** veya kütüphaneden kaldırılabilir.
+- **Kurulum ve ayarlar:** kütüphane dosyasının konumu ve ANSYS'e bağlama adımları. Eklenti ilk kurulduğunda bu sekme
+  kendiliğinden açılır.
 
-- Ada, kategoriye veya eklenme tarihine göre sıralama (sütun başlığına tıklayarak da), ad/kategoriye göre arama.
-- Malzeme adına tıklayınca MatWeb sayfası yeni sekmede açılır; ANSYS uyarıları ayrı sütunda görünür.
-- İstenen malzemeleri seçip **yalnızca onları içeren** bir ANSYS XML'i indirme (`MatWeb_Secim_<tarih>.xml`)
-  ve seçilenleri silme.
-- **Kütüphane dosyasının konumu:** Tarayıcılar eklentilerin yalnızca İndirilenler klasörünün içine yazmasına izin
-  verir. Burada İndirilenler altında bir alt klasör (ör. `ANSYS/Malzemeler`) ve dosya adı belirlenir; dosya her
-  güncellemede aynı yerde üzerine yazılır, böylece ANSYS'e yolu bir kez tanıtmak yeterlidir.
+Tarayıcılar eklentilerin yalnızca İndirilenler klasörünün içine yazmasına izin verdiği için konum, İndirilenler altında
+bir alt klasör olarak seçilir (ör. `İndirilenler/ANSYS/Malzemeler/MatWeb_ANSYS_Kutuphanesi.xml`). Dosya her
+güncellemede aynı yerde üzerine yazılır; ANSYS'e bir kez tanıtmak yeterlidir.
 
 ### ANSYS'e alma
 
@@ -107,13 +102,15 @@ imzalanması gerekir ("listelenmemiş" imzalama ücretsizdir ve eklentiyi mağaz
 ```
 extension/
   manifest.json          Eklenti tanımı (Manifest V3)
-  popup.html/.js/.css    Araç çubuğu paneli: sayfayı okuma, ekleme, son eklenenler
-  library.html/.js/.css  Kütüphane sayfası: listeleme, sıralama, seçili indirme, konum ayarı
+  ui.css                 Ortak tasarım (renkler, düğmeler, etiketler; açık/koyu tema)
+  popup.html/.js/.css    Araç çubuğu paneli: açık sayfadaki malzemeyi ekleme
+  library.html/.js/.css  Kütüphane sayfası: Malzemeler ve Kurulum ve ayarlar sekmeleri
   background.js          İndirme ve rozet
   lib/matweb-parser.js   MatWeb sayfasını DOM'dan okur (tarayıcıdan bağımsız)
   lib/xml-writer.js      Genel XML yazıcısı
   lib/ansys-writer.js    ANSYS Engineering Data (MatML 3.1) kütüphane yazıcısı ve alan eşlemesi
   lib/store.js           Kütüphane/ayar saklama, sıralama, uyarılar, dosya yolu (panel ve sayfa ortak)
+  lib/ui.js              Simgeler, bildirim ve tarih biçimi yardımcıları
   icons/icon.svg
 test/
   fixtures/*.htm         MatWeb yapısını taklit eden sentetik örnek sayfalar

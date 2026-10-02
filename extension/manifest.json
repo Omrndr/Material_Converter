@@ -1,14 +1,14 @@
 {
   "manifest_version": 3,
-  "name": "MatWeb → ANSYS",
-  "version": "0.3.0",
-  "description": "MatWeb malzeme veri sayfalarını tek tıkla ANSYS Engineering Data kütüphanesine (XML) ekler.",
+  "name": "Material Converter (MatWeb → ANSYS)",
+  "version": "0.4.0",
+  "description": "MatWeb malzeme sayfalarını tek tıkla ANSYS Engineering Data kütüphanesine (XML) aktarır.",
   "icons": {
     "48": "icons/icon.svg",
     "96": "icons/icon.svg"
   },
   "action": {
-    "default_title": "MatWeb → ANSYS kütüphanesi",
+    "default_title": "Material Converter – malzemeyi ANSYS kütüphanesine ekle",
     "default_icon": "icons/icon.svg",
     "default_popup": "popup.html"
   },

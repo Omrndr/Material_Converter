@@ -2,33 +2,76 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
+  <link rel="stylesheet" href="ui.css">
   <link rel="stylesheet" href="popup.css">
 </head>
 <body>
-  <header>MatWeb → ANSYS</header>
-
-  <section>
-    <div id="page-name" class="muted">Sayfa kontrol ediliyor…</div>
-    <ul id="page-warnings" class="warnings"></ul>
-    <div class="row">
-      <button id="add" class="primary" disabled>Kütüphaneye ekle</button>
-      <button id="export-one" disabled title="Bu sayfanın tüm verisini ayrıntılı (genel) XML olarak indir">Genel XML</button>
+  <header class="brand">
+    <img src="icons/icon.svg" alt="" width="28" height="28">
+    <div>
+      <div class="brand-title">Material Converter</div>
+      <div class="brand-sub">MatWeb → ANSYS Engineering Data</div>
     </div>
-  </section>
+  </header>
 
-  <section>
-    <div class="section-title">Son eklenenler <span id="count" class="muted"></span></div>
-    <ul id="list"></ul>
-    <div id="empty" class="muted">Henüz malzeme yok.</div>
-    <div class="row">
-      <button id="open-library" class="primary">Kütüphaneyi aç</button>
-      <button id="download" disabled title="Tüm kütüphaneyi ayarlardaki konuma yaz">Kütüphaneyi yaz</button>
-    </div>
-    <div id="path" class="muted small"></div>
-  </section>
+  <main>
+    <!-- 1) Açık sekmedeki sayfa -->
+    <section class="card page">
+      <div class="eyebrow">Açık sayfa</div>
 
-  <div id="status" role="status"></div>
+      <div id="state-loading" class="muted">Sayfa okunuyor…</div>
 
+      <div id="state-empty" hidden>
+        <p class="lead">Bu sekmede bir MatWeb malzeme sayfası yok.</p>
+        <ol class="steps">
+          <li><a href="https://www.matweb.com/" id="matweb-link">matweb.com</a>'da bir malzemenin veri sayfasını açın.</li>
+          <li>Araç çubuğundaki bu düğmeye tıklayın.</li>
+          <li><b>Kütüphaneye ekle</b>'ye basın.</li>
+        </ol>
+      </div>
+
+      <div id="state-nodata" hidden>
+        <p class="lead">Bu MatWeb sayfasında özellik tablosu bulunamadı.</p>
+        <p class="muted">Arama sonucu değil, bir malzemenin kendi veri sayfasını (DataSheet) açın.</p>
+      </div>
+
+      <div id="state-material" hidden>
+        <h1 id="mat-name"></h1>
+        <div id="mat-category" class="muted"></div>
+        <div class="chips">
+          <span id="mat-status" class="chip"></span>
+          <span id="mat-props" class="chip info"></span>
+        </div>
+        <div id="page-warnings"></div>
+        <button id="add" class="btn primary block" data-icon="plus">Kütüphaneye ekle</button>
+        <button id="export-one" class="btn ghost block" data-icon="download"
+                title="Sertlik, kompozisyon, koşullu değerler dahil sayfadaki tüm veri">Tüm veriyi ayrı XML olarak indir</button>
+      </div>
+    </section>
+
+    <!-- 2) Kütüphane özeti -->
+    <section class="card library">
+      <div class="library-head">
+        <div>
+          <div class="eyebrow">Kütüphane</div>
+          <div class="count"><span id="count">0</span> malzeme</div>
+        </div>
+        <button id="open-library" class="btn" data-icon="library">Kütüphaneyi yönet</button>
+      </div>
+      <div class="file">
+        <span data-icon="file"></span>
+        <div>
+          <div id="path-file" class="path-file"></div>
+          <div id="path-dir" class="path-dir"></div>
+          <div id="file-meta" class="muted"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="toast" class="toast" role="status" hidden></div>
+
+  <script src="lib/ui.js"></script>
   <script src="lib/xml-writer.js"></script>
   <script src="lib/ansys-writer.js"></script>
   <script src="lib/store.js"></script>

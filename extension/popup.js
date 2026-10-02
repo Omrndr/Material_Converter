@@ -1,18 +1,11 @@
-// Araç çubuğu paneli: etkin MatWeb sayfasını okur, malzemeyi kütüphaneye ekler,
-// son eklenenleri gösterir ve tam kütüphane sayfasını açar.
+// Araç çubuğu paneli: açık MatWeb sayfasındaki malzemeyi kütüphaneye ekler; kütüphanenin özetini gösterir.
 'use strict';
 
 const api = globalThis.browser ?? globalThis.chrome;
 const $ = (id) => document.getElementById(id);
-const RECENT_COUNT = 5;
 
 let current = null; // { data, sourceUrl }
 let settings = null;
-
-function setStatus(text, kind) {
-  $('status').textContent = text || '';
-  $('status').className = kind || '';
-}
 
 function isMatweb(url) {
   try {
@@ -40,47 +33,70 @@ async function openTab(url) {
   }
 }
 
-function render() {
-  const library = settings.library;
-  const list = $('list');
-  list.textContent = '';
-  MatStore.sortEntries(library, { key: 'addedAt', dir: 'desc' }).slice(0, RECENT_COUNT).forEach((m) => {
-    const li = document.createElement('li');
-    const a = document.createElement('a');
-    a.textContent = m.name;
-    a.href = m.sourceUrl;
-    a.title = 'MatWeb sayfasını aç';
-    a.addEventListener('click', (e) => {
-      e.preventDefault();
-      openTab(m.sourceUrl);
-    });
-    li.append(a);
-    if (MatStore.warningsFor(m.data).length) {
-      const w = document.createElement('span');
-      w.className = 'warn-icon';
-      w.textContent = '⚠';
-      w.title = MatStore.warningsFor(m.data).join('\n');
-      li.append(w);
-    }
-    list.append(li);
+function showState(name) {
+  ['loading', 'empty', 'nodata', 'material'].forEach((s) => {
+    $('state-' + s).hidden = s !== name;
   });
-  $('count').textContent = library.length ? `(toplam ${library.length})` : '';
-  $('empty').hidden = library.length > 0;
-  $('download').disabled = !library.length;
-  $('path').textContent = 'Kütüphane dosyası: İndirilenler/' + MatStore.libraryPath(settings);
-
-  const known = current && library.some((m) => m.key === materialKey(current));
-  $('add').textContent = known ? 'Kütüphanede güncelle' : 'Kütüphaneye ekle';
 }
 
-function renderWarnings(warnings) {
-  const ul = $('page-warnings');
-  ul.textContent = '';
-  warnings.forEach((w) => {
-    const li = document.createElement('li');
-    li.textContent = w;
-    ul.append(li);
+function renderLibrary() {
+  $('count').textContent = settings.library.length;
+  const folder = MatStore.sanitizeFolder(settings.folder);
+  $('path-file').textContent = MatStore.sanitizeFileName(settings.fileName);
+  $('path-dir').textContent = 'Klasör: İndirilenler' + (folder ? '/' + folder : '');
+  const meta = $('file-meta');
+  meta.textContent = '';
+  const parts = [];
+  if (!settings.autoUpdate) parts.push('Otomatik güncelleme kapalı');
+  else parts.push('Her eklemede otomatik güncellenir');
+  if (settings.lastWrittenAt) parts.push('son: ' + UI.formatDate(settings.lastWrittenAt));
+  meta.append(parts.join(' · ') + ' · ');
+  const change = document.createElement('a');
+  change.href = '#';
+  change.textContent = 'Konumu değiştir';
+  change.addEventListener('click', (e) => {
+    e.preventDefault();
+    openTab(api.runtime.getURL('library.html#kurulum'));
   });
+  meta.append(change);
+}
+
+function renderMaterial() {
+  if (!current) return;
+  const data = current.data;
+  $('mat-name').textContent = displayName(data.name);
+  $('mat-category').textContent = (data.categories || []).slice(-2).join(' · ');
+
+  const existing = settings.library.find((m) => m.key === materialKey(current));
+  const status = $('mat-status');
+  status.textContent = '';
+  if (existing) {
+    status.className = 'chip ok';
+    status.append(UI.icon('check'), 'Kütüphanede · ' + UI.formatDate(existing.updatedAt || existing.addedAt, false));
+  } else {
+    status.className = 'chip';
+    status.textContent = 'Kütüphanede değil';
+  }
+
+  const props = MatStore.ansysProperties(data);
+  const chip = $('mat-props');
+  chip.className = props.length ? 'chip info' : 'chip warn';
+  chip.textContent = props.length ? `ANSYS'e ${props.length} özellik aktarılır` : "ANSYS'e aktarılacak özellik yok";
+  chip.title = props.join('\n');
+
+  const box = $('page-warnings');
+  box.textContent = '';
+  MatStore.warningsFor(data).forEach((w) => {
+    const div = document.createElement('div');
+    div.className = 'notice';
+    div.append(UI.icon('alert'), w);
+    box.append(div);
+  });
+
+  const add = $('add');
+  add.textContent = existing ? 'Kütüphanede güncelle' : 'Kütüphaneye ekle';
+  add.dataset.icon = existing ? 'refresh' : 'plus';
+  UI.hydrate(add.parentElement);
 }
 
 async function addCurrent() {
@@ -100,15 +116,11 @@ async function addCurrent() {
   if (existing) library[library.indexOf(existing)] = entry;
   else library.push(entry);
   await MatStore.save({ library });
-  render();
-  const what = existing ? 'güncellendi' : 'eklendi';
-  const warn = MatStore.warningsFor(entry.data).length ? ' (uyarıları kontrol edin)' : '';
-  if (settings.autoUpdate) {
-    const path = await MatStore.writeLibrary(settings);
-    setStatus(`“${entry.name}” ${what}${warn}; İndirilenler/${path} güncellendi.`, warn ? 'warn' : 'ok');
-  } else {
-    setStatus(`“${entry.name}” ${what}${warn}.`, warn ? 'warn' : 'ok');
-  }
+  if (settings.autoUpdate) await MatStore.writeLibrary(settings);
+  renderMaterial();
+  renderLibrary();
+  const what = existing ? 'güncellendi' : 'kütüphaneye eklendi';
+  UI.toast(settings.autoUpdate ? `${entry.name} ${what}. ANSYS dosyası güncellendi.` : `${entry.name} ${what}.`);
 }
 
 async function exportCurrent() {
@@ -116,31 +128,23 @@ async function exportCurrent() {
     sourceUrl: MatStore.cleanSourceUrl(current.sourceUrl),
     exportedAt: new Date().toISOString()
   });
-  await MatStore.download(xml, MatwebXml.fileNameFor(current.data.name), false);
-  setStatus('Genel XML indirildi.', 'ok');
+  const name = MatwebXml.fileNameFor(current.data.name);
+  await MatStore.download(xml, name, false);
+  UI.toast(`İndirilenler/${name} indirildi.`);
 }
 
 async function readActiveTab() {
   const [tab] = await api.tabs.query({ active: true, currentWindow: true });
-  if (!tab || !isMatweb(tab.url)) {
-    $('page-name').textContent = 'Bu sekme bir MatWeb sayfası değil. Bir malzemenin veri sayfasını açın.';
-    return;
-  }
+  if (!tab || !isMatweb(tab.url)) return showState('empty');
   await api.scripting.executeScript({ target: { tabId: tab.id }, files: ['lib/matweb-parser.js'] });
   const [{ result }] = await api.scripting.executeScript({
     target: { tabId: tab.id },
     func: () => globalThis.MatwebParser.parseDatasheet(document)
   });
-  if (!result || !result.groups.length) {
-    $('page-name').textContent = 'Bu sayfada MatWeb özellik tablosu bulunamadı.';
-    return;
-  }
+  if (!result || !result.groups.length) return showState('nodata');
   current = { data: result, sourceUrl: tab.url };
-  $('page-name').textContent = displayName(result.name);
-  $('page-name').className = '';
-  renderWarnings(MatStore.warningsFor(result));
-  $('add').disabled = false;
-  $('export-one').disabled = false;
+  renderMaterial();
+  showState('material');
 }
 
 function guard(fn) {
@@ -149,7 +153,7 @@ function guard(fn) {
       await fn();
     } catch (e) {
       console.error(e);
-      setStatus('Hata: ' + (e && e.message ? e.message : e), 'err');
+      UI.toast('Hata: ' + (e && e.message ? e.message : e), 'err');
     }
   };
 }
@@ -157,14 +161,14 @@ function guard(fn) {
 $('add').addEventListener('click', guard(addCurrent));
 $('export-one').addEventListener('click', guard(exportCurrent));
 $('open-library').addEventListener('click', () => openTab(api.runtime.getURL('library.html')));
-$('download').addEventListener('click', guard(async () => {
-  const path = await MatStore.writeLibrary(settings);
-  setStatus(`İndirilenler/${path} yazıldı.`, 'ok');
-}));
+$('matweb-link').addEventListener('click', (e) => {
+  e.preventDefault();
+  openTab('https://www.matweb.com/');
+});
 
+UI.hydrate();
 guard(async () => {
   settings = await MatStore.load();
-  render();
+  renderLibrary();
   await readActiveTab();
-  render();
 })();

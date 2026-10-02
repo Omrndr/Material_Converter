@@ -72,15 +72,19 @@ def main():
         return chrome('''
           const b = document.querySelector('browser[webextension-view-type="popup"]');
           const doc = b && b.contentDocument;
-          if (!doc || !doc.getElementById('page-name')) return null;
-          const page = doc.getElementById('page-name').textContent;
-          if (page.includes('kontrol ediliyor')) return null;
+          if (!doc || !doc.getElementById('state-loading') || !doc.getElementById('state-loading').hidden) return null;
+          const vis = (id) => !doc.getElementById(id).hidden;
           const btn = document.getElementById(arguments[0]);
+          const toast = doc.getElementById('toast');
           return {
-            page, addDisabled: doc.getElementById('add').disabled, add: doc.getElementById('add').textContent,
-            items: [...doc.querySelectorAll('#list li a')].map(a => a.textContent),
-            warnings: [...doc.querySelectorAll('#page-warnings li')].map(li => li.textContent),
-            status: doc.getElementById('status').textContent,
+            state: ['empty', 'nodata', 'material'].find((s) => vis('state-' + s)),
+            name: doc.getElementById('mat-name').textContent,
+            inLibrary: doc.getElementById('mat-status').classList.contains('ok'),
+            props: doc.getElementById('mat-props').textContent,
+            add: doc.getElementById('add').textContent.trim(),
+            warnings: [...doc.querySelectorAll('#page-warnings .notice')].map((n) => n.textContent),
+            count: doc.getElementById('count').textContent,
+            toast: toast.hidden ? '' : toast.textContent,
             badge: (btn.querySelector('.toolbarbutton-badge') || {}).textContent || ''
           };''', WIDGET)
 
@@ -110,38 +114,51 @@ def main():
         time.sleep(0.5)
 
     try:
+        handles_before = set(d.window_handles)
         d.install_addon(EXT, temporary=True)
         print('Firefox', d.capabilities['browserVersion'])
-        time.sleep(1)
+        time.sleep(2)
+        opened = [h for h in d.window_handles if h not in handles_before]
+        setup_ok = False
+        for h in opened:
+            d.switch_to.window(h)
+            setup_ok = setup_ok or d.current_url.endswith('library.html#kurulum')
+            d.close()
+        d.switch_to.window(sorted(handles_before)[0])
+        check(setup_ok, 'ilk kurulumda "Kurulum ve ayarlar" sayfası açıldı')
         # Kullanıcının "Araç çubuğuna sabitle" demesine karşılık gelir.
         chrome('CustomizableUI.addWidgetToArea(arguments[0], CustomizableUI.AREA_NAVBAR);', WIDGET)
 
         d.get('about:blank')
         st = open_popup()
-        check(st['addDisabled'] and 'MatWeb sayfası değil' in st['page'], 'MatWeb dışı sayfada ekleme kapalı')
+        check(st['state'] == 'empty', 'MatWeb dışı sayfada kullanım adımları gösteriliyor')
         close_popup()
 
         visit('a' * 32)
         st = open_popup()
-        check(st['page'] == 'Test Alloy T6; T651' and not st['addDisabled'], 'koşullu sayfa okundu')
+        check(st['state'] == 'material' and st['name'] == 'Test Alloy T6; T651' and not st['inLibrary'],
+              'malzeme okundu, "Kütüphanede değil" gösteriliyor')
+        check(st['props'] == "ANSYS'e 7 özellik aktarılır" and not st['warnings'], 'aktarılacak özellik sayısı: ' + st['props'])
         st = click('add')
-        check(st['items'] == ['Test Alloy T6; T651'] and st['badge'] == '1', 'ilk malzeme eklendi, rozet 1')
+        check(st['inLibrary'] and st['add'] == 'Kütüphanede güncelle' and st['count'] == '1' and st['badge'] == '1',
+              'ilk malzeme eklendi; durum, sayaç ve rozet güncellendi')
+        check('eklendi' in st['toast'], 'bildirim gösterildi: ' + st['toast'])
         close_popup()
 
         visit('b' * 32)
         st = open_popup()
-        check(st['page'] == 'Test Steel', '"Overview" sayfa adı sadeleştirildi')
+        check(st['name'] == 'Test Steel', '"Overview" sayfa adı sadeleştirildi')
         check(len(st['warnings']) == 1 and 'Overview' in st['warnings'][0], 'Overview sayfası için uyarı gösterildi')
         st = click('add')
-        check(st['items'] == ['Test Steel', 'Test Alloy T6; T651'] and st['badge'] == '2', 'ikinci malzeme eklendi (en yeni üstte), rozet 2')
+        check(st['count'] == '2' and st['badge'] == '2', 'ikinci malzeme eklendi, rozet 2')
         st = click('export-one')
-        check('Genel XML' in st['status'], 'genel XML indirildi')
+        check('Test_Steel.xml' in st['toast'], 'tüm veri ayrı XML olarak indirildi')
         close_popup()
 
         st = open_popup()
         check(st['add'] == 'Kütüphanede güncelle', 'kütüphanedeki malzeme tanındı')
         st = click('add')
-        check(len(st['items']) == 2 and 'güncellendi' in st['status'], 'tekrar eklemede kopya oluşmadı')
+        check(st['count'] == '2' and 'güncellendi' in st['toast'], 'tekrar eklemede kopya oluşmadı')
         close_popup()
 
         time.sleep(2)
@@ -153,28 +170,22 @@ def main():
         check(root.tag == 'EngineeringData' and names == ['Test Alloy T6; T651', 'Test Steel'],
               'ANSYS kütüphanesinde iki malzeme var')
 
-        # --- Paneldeki malzeme adı bağlantısı yeni sekmede MatWeb sayfasını açar
+        # --- "Kütüphaneyi yönet" kütüphane sayfasını yeni sekmede açar
         handles = set(d.window_handles)
         open_popup()
         chrome('''document.querySelector('browser[webextension-view-type="popup"]')
-                    .contentDocument.querySelector('#list li a').click();''')
+                    .contentDocument.getElementById('open-library').click();''')
         time.sleep(1.5)
         new = set(d.window_handles) - handles
-        check(len(new) == 1, 'paneldeki bağlantı yeni sekme açtı')
-        if new:
-            d.switch_to.window(new.pop())
-            check(d.current_url == 'http://www.matweb.com/search/DataSheet.aspx?MatGUID=' + 'b' * 32,
-                  'bağlantı temizlenmiş MatWeb adresine gidiyor: ' + d.current_url)
-
-        # --- Kütüphane sayfası (ayrı sekme)
-        lib_url = chrome('return WebExtensionPolicy.getByID(arguments[0]).getURL("library.html")', ADDON_ID)
-        d.get(lib_url)
+        check(len(new) == 1, '"Kütüphaneyi yönet" yeni sekme açtı')
+        d.switch_to.window(new.pop())
+        check(d.current_url.endswith('/library.html'), 'kütüphane sayfası açıldı')
         time.sleep(1)
 
         def rows():
             return d.execute_script('''return [...document.querySelectorAll('#rows tr')].map(tr => ({
-                name: tr.children[1].textContent, href: tr.querySelector('a').getAttribute('href'),
-                warn: tr.children[4].textContent }))''')
+                name: tr.querySelector('a.mat-name').textContent, href: tr.querySelector('a.mat-name').getAttribute('href'),
+                status: tr.querySelector('.status').textContent }))''')
 
         def js(code, *args):
             r = d.execute_script(code, *args)
@@ -182,8 +193,23 @@ def main():
             return r
 
         r = rows()
-        check([x['name'] for x in r] == ['Test Steel', 'Test Alloy T6; T651'], 'kütüphane sayfası: varsayılan sıra en yeni üstte')
-        check('Overview' in r[0]['warn'] and r[1]['warn'] == '', 'kütüphane sayfası: uyarı sütunu')
+        check([x['name'] for x in r] == ['Test Steel', 'Test Alloy T6; T651'], 'kütüphane: varsayılan sıra en yeni üstte')
+        check('dikkat' in r[0]['status'] and 'Overview' in r[0]['status'] and 'Hazır' in r[1]['status'],
+              'kütüphane: ANSYS durum sütunu')
+        check(r[0]['href'] == 'http://www.matweb.com/search/DataSheet.aspx?MatGUID=' + 'b' * 32, 'malzeme bağlantısı MatWeb sayfasına gidiyor')
+        check(d.find_element(By.ID, 'selection-bar').is_displayed() is False, 'seçim yokken toplu işlem çubuğu gizli')
+
+        # Bağlantı yeni sekmede açılır
+        handles = set(d.window_handles)
+        js("document.querySelector('#rows a.mat-name').click();")
+        new = set(d.window_handles) - handles
+        check(len(new) == 1, 'malzeme adına tıklayınca MatWeb sayfası yeni sekmede açıldı')
+        lib_handle = d.current_window_handle
+        for h in new:
+            d.switch_to.window(h)
+            d.close()
+        d.switch_to.window(lib_handle)
+
         js("const s = document.getElementById('sort'); s.value = 'name:asc'; s.dispatchEvent(new Event('change'));")
         check([x['name'] for x in rows()] == ['Test Alloy T6; T651', 'Test Steel'], 'ada göre sıralama (A → Z)')
         js("document.querySelector('th[data-sort=name]').click();")
@@ -194,29 +220,40 @@ def main():
 
         # Yalnızca seçilen malzemeyi içeren XML
         js("document.querySelectorAll('#rows tr')[1].querySelector('input[type=checkbox]').click();")
+        check(d.find_element(By.ID, 'selection-bar').is_displayed() and d.find_element(By.ID, 'selection-count').text == '1',
+              'seçince "1 malzeme seçildi" çubuğu göründü')
         js("document.getElementById('download-selected').click();")
         sel = [f for f in os.listdir(downloads) if f.startswith('MatWeb_Secim_')]
-        check(len(sel) == 1, 'seçili malzemeler ayrı dosyaya indirildi: ' + ', '.join(sel))
+        check(len(sel) == 1, 'seçilen malzemeler ayrı dosyaya indirildi: ' + ', '.join(sel))
         if sel:
             names = [n.text for n in ET.parse(os.path.join(downloads, sel[0])).getroot()
                      .iterfind('./Materials/MatML_Doc/Material/BulkDetails/Name')]
             check(names == ['Test Alloy T6; T651'], 'seçim dosyasında yalnızca seçilen malzeme var')
 
-        # İndirme konumu ayarı: İndirilenler/ANSYS/Kutuphane altında sabit dosya
+        # Kurulum ve ayarlar sekmesi: konum
+        js("location.hash = '#kurulum';")
+        check(d.find_element(By.ID, 'view-kurulum').is_displayed() and not d.find_element(By.ID, 'view-malzemeler').is_displayed(),
+              '"Kurulum ve ayarlar" sekmesine geçildi')
         js('''document.getElementById('folder').value = '../ANSYS/Kutuphane';
+              document.getElementById('folder').dispatchEvent(new Event('input'));
               document.getElementById('save-settings').click();''')
         check(d.find_element(By.ID, 'path-preview').text == 'İndirilenler/ANSYS/Kutuphane/' + LIBRARY,
               'konum ayarı kaydedildi ve güvenli hâle getirildi')
+        check(d.find_element(By.ID, 'setup-path').text == 'İndirilenler/ANSYS/Kutuphane/' + LIBRARY, 'ANSYS adımlarında yeni yol gösteriliyor')
+        js("location.hash = '#malzemeler';")
         js("document.getElementById('write-library').click();")
         target = os.path.join(downloads, 'ANSYS', 'Kutuphane', LIBRARY)
         check(os.path.exists(target), 'kütüphane ayarlanan alt klasöre yazıldı')
+        check('Son güncelleme' in d.find_element(By.ID, 'file-meta').text, 'son güncelleme zamanı gösteriliyor')
 
-        # Seçilileri sil (iki tıklamalı onay) -> otomatik güncelleme yeni konuma yazar
-        js("document.getElementById('remove-selected').click();")
-        js("document.getElementById('remove-selected').click();")
-        check([x['name'] for x in rows()] == ['Test Steel'], 'seçili malzeme silindi')
+        # Seçilenleri kaldır (onay penceresi) -> otomatik güncelleme yeni konuma yazar
+        d.execute_script("setTimeout(() => document.getElementById('remove-selected').click(), 0);")
+        time.sleep(0.5)
+        d.switch_to.alert.accept()
+        time.sleep(1.5)
+        check([x['name'] for x in rows()] == ['Test Steel'], 'seçilen malzeme onaydan sonra kaldırıldı')
         names = [n.text for n in ET.parse(target).getroot().iterfind('./Materials/MatML_Doc/Material/BulkDetails/Name')]
-        check(names == ['Test Steel'], 'silme sonrası kütüphane dosyası güncellendi')
+        check(names == ['Test Steel'], 'kaldırma sonrası kütüphane dosyası güncellendi')
     finally:
         d.quit()
         server.shutdown()
