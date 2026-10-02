@@ -11,6 +11,14 @@
     <KeyWord>AA0000-T6</KeyWord>
   </KeyWords>
   <PropertyGroups>
+    <PropertyGroup name="Physical Properties">
+      <Property name="Density">
+        <DataPoint>
+          <Metric value="2.80" unit="g/cc" text="2.80 g/cc"/>
+          <English value="0.101" unit="lb/in³" text="0.101 lb/in³"/>
+        </DataPoint>
+      </Property>
+    </PropertyGroup>
     <PropertyGroup name="Mechanical Properties">
       <Property name="Tensile Strength, Ultimate">
         <DataPoint>
@@ -44,6 +52,19 @@
           <Comment>Plate; T62, T651</Comment>
         </DataPoint>
       </Property>
+      <Property name="Modulus of Elasticity">
+        <DataPoint>
+          <Metric value="72.0" unit="GPa" text="72.0 GPa"/>
+          <English value="10400" unit="ksi" text="10400 ksi"/>
+          <Comment>AA; Typical</Comment>
+        </DataPoint>
+      </Property>
+      <Property name="Poissons Ratio">
+        <DataPoint>
+          <Metric value="0.33" text="0.33"/>
+          <English value="0.33" text="0.33"/>
+        </DataPoint>
+      </Property>
       <Property name="Fatigue Strength">
         <DataPoint>
           <Metric value="160" unit="MPa" text="160 MPa">
@@ -67,6 +88,54 @@
         <DataPoint>
           <Metric text="Yes"/>
           <English text="Yes"/>
+        </DataPoint>
+      </Property>
+    </PropertyGroup>
+    <PropertyGroup name="Thermal Properties">
+      <Property name="CTE, linear">
+        <DataPoint>
+          <Metric value="23.0" unit="µm/m-°C" text="23.0 µm/m-°C">
+            <Condition name="Temperature" min="20.0" max="100" unit="°C"/>
+          </Metric>
+          <English value="12.8" unit="µin/in-°F" text="12.8 µin/in-°F">
+            <Condition name="Temperature" min="68.0" max="212" unit="°F"/>
+          </English>
+        </DataPoint>
+        <DataPoint>
+          <Metric value="24.0" unit="µm/m-°C" text="24.0 µm/m-°C">
+            <Condition name="Temperature" min="20.0" max="200" unit="°C"/>
+          </Metric>
+          <English value="13.3" unit="µin/in-°F" text="13.3 µin/in-°F">
+            <Condition name="Temperature" min="68.0" max="392" unit="°F"/>
+          </English>
+        </DataPoint>
+        <DataPoint>
+          <Metric value="25.0" unit="µm/m-°C" text="25.0 µm/m-°C">
+            <Condition name="Temperature" min="20.0" max="300" unit="°C"/>
+          </Metric>
+          <English value="13.9" unit="µin/in-°F" text="13.9 µin/in-°F">
+            <Condition name="Temperature" min="68.0" max="572" unit="°F"/>
+          </English>
+        </DataPoint>
+      </Property>
+      <Property name="Specific Heat Capacity">
+        <DataPoint>
+          <Metric value="0.960" unit="J/g-°C" text="0.960 J/g-°C"/>
+          <English value="0.229" unit="BTU/lb-°F" text="0.229 BTU/lb-°F"/>
+        </DataPoint>
+      </Property>
+      <Property name="Thermal Conductivity">
+        <DataPoint>
+          <Metric value="130" unit="W/m-K" text="130 W/m-K"/>
+          <English value="900" unit="BTU-in/hr-ft²-°F" text="900 BTU-in/hr-ft²-°F"/>
+        </DataPoint>
+      </Property>
+    </PropertyGroup>
+    <PropertyGroup name="Electrical Properties">
+      <Property name="Electrical Resistivity">
+        <DataPoint>
+          <Metric value="0.00000515" unit="ohm-cm" text="0.00000515 ohm-cm"/>
+          <English value="0.00000515" unit="ohm-cm" text="0.00000515 ohm-cm"/>
         </DataPoint>
       </Property>
     </PropertyGroup>

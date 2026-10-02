@@ -1,32 +1,63 @@
 # malzeme_donusturucu
 
-MatWeb malzeme veri sayfalarını tek tıkla **XML** dosyasına dönüştüren tarayıcı eklentisi.
+MatWeb malzeme veri sayfalarını tek tıkla **ANSYS Workbench Engineering Data** kütüphanesine (XML) ekleyen
+tarayıcı eklentisi.
 
 - Tamamen yerel çalışır: sunucu, Python kurulumu, OCR veya yapay zekâ modeli yoktur.
 - Ayrıştırma doğrudan sayfanın HTML tablosundan yapıldığı için değerler birebir aktarılır.
-- Eklentinin toplam boyutu birkaç KB'dır.
+- Eklenen malzemeler eklentinin hafızasında tutulur; hepsi **tek bir kütüphane dosyasına** yazılır.
 
 Şu an **Firefox** için hazırdır; Chrome ve Edge desteği sonraki adımdır.
 
 ## Kullanım
 
 1. Firefox'ta MatWeb'de bir malzemenin veri sayfasını açın (`matweb.com/search/DataSheet.aspx?...`).
-2. Araç çubuğundaki **MAT/XML** düğmesine tıklayın.
-3. `İndirilenler` klasörüne malzeme adıyla bir `.xml` dosyası iner (ör. `Aluminum_7075-T6_7075-T651.xml`).
-   Düğmede kısa süre yeşil ✓ görünür. MatWeb dışı bir sayfada tıklanırsa uyarı verilir.
+2. Araç çubuğundaki **MAT/XML** düğmesine tıklayın, açılan panelde **Kütüphaneye ekle**'ye basın.
+3. `İndirilenler` klasörüne `MatWeb_ANSYS_Kutuphanesi.xml` yazılır. Her eklemede aynı dosya güncellenir
+   (paneldeki "otomatik güncelle" kutusu kapatılırsa yalnızca **ANSYS kütüphanesini indir** ile yazılır).
+4. Aynı malzeme tekrar eklenirse kopya oluşmaz, mevcut kayıt güncellenir. ✕ ile malzeme çıkarılabilir.
+5. **Genel XML** düğmesi, sayfadaki tüm veriyi (sertlik, kompozisyon, kalınlığa bağlı değerler dahil)
+   ayrıntılı genel XML olarak ayrıca indirir.
+
+Düğme üzerindeki rozet kütüphanedeki malzeme sayısını gösterir.
+
+### ANSYS'e alma
+
+Workbench → **Engineering Data** → **Engineering Data Sources** görünümünde listenin en altındaki boş satırın
+*Location* sütunundaki **…** düğmesiyle `MatWeb_ANSYS_Kutuphanesi.xml` dosyasını kütüphane olarak ekleyin
+(tek seferlik alım için: *File → Import Engineering Data*). Dosya güncellendiğinde kütüphaneyi yenilemek yeterlidir.
+
+### ANSYS'e aktarılan özellikler
+
+| MatWeb | ANSYS | Not |
+|---|---|---|
+| Density | Density | g/cc → kg/m³ |
+| Modulus of Elasticity + Poissons Ratio | Elasticity (Isotropic) | ν yoksa Shear Modulus'tan türetilir; K ve G hesaplanır |
+| Tensile Strength, Yield / Ultimate | Tensile Yield / Ultimate Strength | MPa → Pa |
+| Compressive Yield Strength / Compressive Strength | Compressive Yield / Ultimate Strength | |
+| CTE, linear | Coefficient of Thermal Expansion (Secant) + Zero-Thermal-Strain Reference Temperature | "@ 20–100 °C" aralıkları sıcaklık tablosuna çevrilir |
+| Specific Heat Capacity | Specific Heat (Constant Pressure) | J/g-°C → J/kg-°C |
+| Thermal Conductivity | Thermal Conductivity (Isotropic) | |
+| Electrical Resistivity | Resistivity | ohm-cm → ohm-m |
+
+- Yoğunluk, elastisite, özgül ısı ve ısıl iletkenlikte en az iki sıcaklık noktası varsa sıcaklık tablosu yazılır.
+- Aralık olarak verilen değerlerde (ör. "670 – 1240 MPa") MatWeb'in verdiği ortalama, yoksa orta nokta alınır;
+  bu durum malzemenin açıklamasına (Description) not düşülür.
+- Kalınlığa bağlı değerler, sertlik ve kompozisyon ANSYS'te karşılığı olmadığından aktarılmaz (Genel XML'de vardır).
+- Eşleme tablosu `extension/lib/ansys-writer.js` içindeki `FIELD_MAP`'tedir; yeni alan eklemek için oraya satır eklenir.
 
 ## Firefox'a yükleme (geliştirme / deneme)
 
 1. Firefox adres çubuğuna `about:debugging#/runtime/this-firefox` yazın.
 2. **Geçici Eklenti Yükle… (Load Temporary Add-on…)** düğmesine basın.
 3. Bu depodaki `extension/manifest.json` dosyasını seçin.
-4. Düğme araç çubuğunda görünmüyorsa: yapboz (Uzantılar) simgesi → "MatWeb → XML" → *Araç çubuğuna sabitle*.
+4. Düğme araç çubuğunda görünmüyorsa: yapboz (Uzantılar) simgesi → "MatWeb → ANSYS" → *Araç çubuğuna sabitle*.
 
 Geçici eklentiler Firefox kapanınca kaldırılır. Kalıcı kurulum için eklentinin Mozilla tarafından
 imzalanması gerekir ("listelenmemiş" imzalama ücretsizdir ve eklentiyi mağazada yayımlamaz):
 `npm run build:firefox` ile paket oluşturulup addons.mozilla.org geliştirici sayfasından imzalatılabilir.
 
-## XML biçimi
+## Genel XML biçimi
 
 ```xml
 <Material source="MatWeb" sourceUrl="..." exportedAt="2026-10-02T12:00:00.000Z" formatVersion="1">
@@ -63,13 +94,16 @@ imzalanması gerekir ("listelenmemiş" imzalama ücretsizdir ve eklentiyi mağaz
 ```
 extension/
   manifest.json          Eklenti tanımı (Manifest V3)
-  background.js          Düğme tıklaması, sayfaya betik ekleme, indirme
+  popup.html/.js/.css    Araç çubuğu paneli: sayfayı okuma, kütüphane yönetimi
+  background.js          İndirme ve rozet
   lib/matweb-parser.js   MatWeb sayfasını DOM'dan okur (tarayıcıdan bağımsız)
-  lib/xml-writer.js      Okunan veriyi XML'e yazar
+  lib/xml-writer.js      Genel XML yazıcısı
+  lib/ansys-writer.js    ANSYS Engineering Data (MatML 3.1) kütüphane yazıcısı ve alan eşlemesi
   icons/icon.svg
 test/
   fixtures/*.htm         MatWeb yapısını taklit eden sentetik örnek sayfalar
-  expected/*.xml         Beklenen çıktılar
+  expected/*.xml         Beklenen çıktılar (genel XML + ANSYS kütüphanesi)
+  reference/             ANSYS 2023 R1'den alınmış gerçek Engineering Data dışa aktarımı (biçim referansı)
   run.mjs                Ayrıştırıcıyı gerçek tarayıcıda (Playwright/Chromium) çalıştıran test
 ```
 

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <header>MatWeb → ANSYS</header>
+
+  <section>
+    <div id="page-name" class="muted">Sayfa kontrol ediliyor…</div>
+    <div class="row">
+      <button id="add" class="primary" disabled>Kütüphaneye ekle</button>
+      <button id="export-one" disabled title="Bu sayfanın tüm verisini ayrıntılı (genel) XML olarak indir">Genel XML</button>
+    </div>
+  </section>
+
+  <section>
+    <div class="section-title">Kütüphane <span id="count"></span></div>
+    <ul id="list"></ul>
+    <div id="empty" class="muted">Henüz malzeme yok.</div>
+    <label class="check"><input type="checkbox" id="auto"> Eklerken kütüphane dosyasını otomatik güncelle</label>
+    <div class="row">
+      <button id="download" class="primary" disabled>ANSYS kütüphanesini indir</button>
+      <button id="clear" disabled>Temizle</button>
+    </div>
+  </section>
+
+  <div id="status" role="status"></div>
+
+  <script src="lib/xml-writer.js"></script>
+  <script src="lib/ansys-writer.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

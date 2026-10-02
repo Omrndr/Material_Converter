@@ -169,9 +169,19 @@
     data.groups = data.groups.filter(function (g) { return g.properties.length; });
   }
 
+  // Malzemenin MatWeb kimliği: adres çubuğunda ya da sayfadaki PDF/yazdır bağlantılarında bulunur.
+  function findMatGuid(doc) {
+    var re = /MatGUID=([0-9a-f]{32})/i;
+    var m = re.exec((doc.location && doc.location.href) || '');
+    if (m) return m[1].toLowerCase();
+    var link = doc.querySelector('a[href*="MatGUID="], a[href*="matguid="]');
+    m = link && re.exec(link.getAttribute('href'));
+    return m ? m[1].toLowerCase() : '';
+  }
+
   function parseDatasheet(doc) {
     var panel = doc.getElementById('ctl00_ContentMain_ucDataSheet1_pnlMaterialData') || doc.body;
-    var data = { name: '', categories: [], keywords: [], notes: '', info: [], groups: [] };
+    var data = { name: '', matGuid: findMatGuid(doc), categories: [], keywords: [], notes: '', info: [], groups: [] };
 
     var title = panel.querySelector('table th[colspan]');
     data.name = title ? clean(title.textContent) : clean(doc.title);
