@@ -3,3 +3,4 @@ test/private/
 dist/
 *.zip
 *.xpi
+__pycache__/

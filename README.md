@@ -116,6 +116,18 @@ npm run test:update    # ayrıştırıcı bilerek değiştiyse beklenen çıktı
 npm run lint           # Mozilla web-ext ile eklenti denetimi
 ```
 
+### Gerçek Firefox'ta uçtan uca test
+
+`test/firefox/e2e.py`, eklentiyi gerçek bir Firefox'a yükler, araç çubuğu düğmesine tıklar, paneldeki
+düğmelere basar ve indirilen dosyaları kontrol eder. `www.matweb.com` istekleri yerel sahte sunucuya
+(`test/firefox/fake_matweb.py`) yönlendirildiği için internet gerekmez.
+
+```bash
+pip install selenium
+# Firefox ve geckodriver yoksa (Linux): micromamba create -p ./ffenv -c conda-forge firefox geckodriver
+FIREFOX_BIN=./ffenv/bin/firefox GECKODRIVER=./ffenv/bin/geckodriver xvfb-run -a python test/firefox/e2e.py
+```
+
 Kendi kaydettiğiniz MatWeb sayfalarını `test/private/` klasörüne koyarsanız (git'e girmez) `npm test`
 bunları da dönüştürüp `test/private/out/` altına yazar. MatWeb içeriği telif kapsamında olduğundan
 gerçek sayfalar depoya eklenmez.
