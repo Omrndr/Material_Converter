@@ -127,13 +127,14 @@ async function addCurrent() {
   };
   if (existing) library[library.indexOf(existing)] = entry;
   else library.push(entry);
-  await MatStore.save({ library });
-  const paths = settings.autoUpdate ? await MatStore.writeAffected(settings, [entry.uid]) : [];
+  // Kategori dosyaları otomatik yazılmaz; malzemeyi içeren kategoriler "güncel değil" olarak işaretlenir.
+  if (existing) MatStore.markGroupsChanged(settings, [entry.uid]);
+  await MatStore.save({ library, groups: settings.groups });
+  if (settings.autoUpdate) await MatStore.writeLibrary(settings);
   renderMaterial();
   renderLibrary();
   const what = existing ? 'güncellendi' : 'kütüphaneye eklendi';
-  const files = paths.length > 1 ? ` ANSYS dosyası ve ${paths.length - 1} kategori dosyası güncellendi.` : paths.length ? ' ANSYS dosyası güncellendi.' : '';
-  UI.toast(`${entry.name} ${what}.${files}`);
+  UI.toast(`${entry.name} ${what}.` + (settings.autoUpdate ? ' ANSYS dosyası güncellendi.' : ''));
 }
 
 async function exportCurrent() {

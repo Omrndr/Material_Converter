@@ -31,7 +31,8 @@ aktarılacağını ve varsa uyarıları gösterir. **Kütüphaneye ekle** ile ma
 ile mevcut bir kategoriye ekleyin ya da yeni bir kategori adı yazın. Bir malzeme birden fazla kategoride olabilir.
 ANSYS'te bir kütüphane dosyasının içinde klasör bulunmadığından her kategori, **kendi adını taşıyan ayrı bir ANSYS
 kütüphane dosyası** olarak yazılır (ör. `İndirilenler/ANSYS/Malzemeler/Alüminyum alaşımları.xml`) ve ANSYS'e ayrı bir
-kütüphane olarak eklenir. Kategori dosyaları, içindeki malzemeler değiştikçe otomatik güncellenir.
+kütüphane olarak eklenir. Kategori dosyaları **otomatik indirilmez**; kategoriyi açıp **Kategoriyi ANSYS kütüphanesi
+olarak indir**'e bastığınızda oluşur. Kategori son indirmeden sonra değişirse başlığında "İndirilen dosya güncel değil" uyarısı görünür.
 
 Tarayıcılar eklentilerin yalnızca İndirilenler klasörünün içine yazmasına izin verdiği için konum, İndirilenler altında
 bir alt klasör olarak seçilir (ör. `İndirilenler/ANSYS/Malzemeler/MatWeb_ANSYS_Kutuphanesi.xml`). Dosya her

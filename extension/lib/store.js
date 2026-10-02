@@ -12,7 +12,7 @@
     fileName: 'MatWeb_ANSYS_Kutuphanesi.xml',
     sort: { key: 'addedAt', dir: 'desc' },
     lastWrittenAt: '',
-    // Kullanıcının kendi kategorileri: { id, name, createdAt, members: [uid], lastWrittenAt }
+    // Kullanıcının kendi kategorileri: { id, name, createdAt, members: [uid], changedAt, lastWrittenAt }
     groups: []
   };
 
@@ -151,11 +151,9 @@
     return sortEntries(settings.library.filter(function (m) { return members.has(m.uid); }), { key: 'name', dir: 'asc' });
   }
 
-  // Kategoriyi kendi adını taşıyan dosyaya yazar. Hiç yazılmamış boş kategori için dosya oluşturulmaz (null);
-  // daha önce yazılmış bir kategori boşalırsa dosyası da boş kütüphane olarak güncellenir.
+  // Kategoriyi kendi adını taşıyan dosyaya yazar (yalnızca kullanıcı istediğinde çağrılır).
   function writeGroup(settings, group) {
     var entries = groupEntries(settings, group);
-    if (!entries.length && !group.lastWrittenAt) return Promise.resolve(null);
     var path = groupPath(settings, group);
     return download(toAnsysXml(entries, 'Kategori: ' + group.name), path, true).then(function () {
       // Sayfa storage.onChanged ile kategori dizisini yenilemiş olabilir; kaydı kimliğiyle bul.
@@ -167,20 +165,18 @@
     }).then(function () { return path; });
   }
 
-  // Değişen malzemelerin etkilediği dosyaları yazar: ana kütüphane + bu malzemeleri içeren kategoriler
-  // + groupIds ile ayrıca belirtilen kategoriler. uids verilmezse tüm kategoriler yazılır. Yazılan yolları döndürür.
-  function writeAffected(settings, uids, groupIds) {
-    var paths = [];
-    var touched = uids ? new Set(uids) : null;
-    var extra = new Set(groupIds || []);
-    var chain = settings.library.length
-      ? writeLibrary(settings).then(function (p) { paths.push(p); })
-      : Promise.resolve();
+  // Bu malzemeleri içeren kategorileri "değişti" olarak işaretler (dosyaları otomatik yazılmaz).
+  function markGroupsChanged(settings, uids) {
+    var touched = new Set(uids);
+    var now = new Date().toISOString();
     settings.groups.forEach(function (g) {
-      if (touched && !extra.has(g.id) && !g.members.some(function (u) { return touched.has(u); })) return;
-      chain = chain.then(function () { return writeGroup(settings, g); }).then(function (p) { if (p) paths.push(p); });
+      if (g.members.some(function (u) { return touched.has(u); })) g.changedAt = now;
     });
-    return chain.then(function () { return paths; });
+  }
+
+  // İndirilen kategori dosyası, kategorideki son değişiklikten eski mi?
+  function isGroupStale(group) {
+    return !!group.lastWrittenAt && !!group.changedAt && group.changedAt > group.lastWrittenAt;
   }
 
   var collator = new Intl.Collator('tr', { sensitivity: 'base', numeric: true });
@@ -225,7 +221,8 @@
     groupPath: groupPath,
     groupEntries: groupEntries,
     writeGroup: writeGroup,
-    writeAffected: writeAffected,
+    markGroupsChanged: markGroupsChanged,
+    isGroupStale: isGroupStale,
     sortEntries: sortEntries,
     category: category,
     stamp: stamp

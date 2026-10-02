@@ -102,7 +102,21 @@ function renderGroups() {
   if (g) {
     $('group-title').textContent = g.name;
     $('group-path').textContent = 'İndirilenler/' + MatStore.groupPath(settings, g);
-    $('group-meta').textContent = g.lastWrittenAt ? '· son: ' + UI.formatDate(g.lastWrittenAt) : '· henüz indirilmedi';
+    const meta = $('group-meta');
+    meta.textContent = '';
+    const chip = document.createElement('span');
+    if (!g.lastWrittenAt) {
+      chip.className = 'chip';
+      chip.textContent = 'Henüz indirilmedi';
+    } else if (MatStore.isGroupStale(g)) {
+      chip.className = 'chip warn';
+      chip.append(UI.icon('alert'), 'İndirilen dosya güncel değil');
+      chip.title = 'Kategori son indirmeden sonra değişti. Güncel hâli için "Kategoriyi ANSYS kütüphanesi olarak indir"e basın.';
+    } else {
+      chip.className = 'chip ok';
+      chip.append(UI.icon('check'), 'Güncel · ' + UI.formatDate(g.lastWrittenAt));
+    }
+    meta.append(chip);
     $('write-group').disabled = g.members.length === 0;
   }
 }
@@ -350,12 +364,12 @@ function createGroup(name, members) {
   return g;
 }
 
-async function saveAndWriteGroup(g, message) {
+// Kategori dosyaları otomatik indirilmez; değişiklik yalnızca kaydedilir ve dosya "güncel değil" olarak işaretlenir.
+async function saveGroupChange(g, message) {
+  g.changedAt = new Date().toISOString();
   await MatStore.save({ groups: settings.groups });
-  let path = null;
-  if (settings.autoUpdate) path = await MatStore.writeGroup(settings, g);
   render();
-  UI.toast(message + (path ? ` ANSYS dosyası: İndirilenler/${path}` : ''));
+  UI.toast(message);
 }
 
 async function assignSelected() {
@@ -366,7 +380,7 @@ async function assignSelected() {
   g.members = [...new Set([...g.members, ...selected])];
   const added = g.members.length - before;
   selected.clear();
-  await saveAndWriteGroup(g, answer.newName
+  await saveGroupChange(g, answer.newName
     ? `"${g.name}" kategorisi ${added} malzemeyle oluşturuldu.`
     : `${added} malzeme "${g.name}" kategorisine eklendi.`);
 }
@@ -377,7 +391,7 @@ async function unassignSelected() {
   const n = selected.size;
   g.members = g.members.filter((u) => !selected.has(u));
   selected.clear();
-  await saveAndWriteGroup(g, `${n} malzeme "${g.name}" kategorisinden çıkarıldı (kütüphanede kalmaya devam eder).`);
+  await saveGroupChange(g, `${n} malzeme "${g.name}" kategorisinden çıkarıldı (kütüphanede kalmaya devam eder).`);
 }
 
 async function newGroup() {
@@ -395,9 +409,11 @@ async function renameGroup() {
   const name = await askName('Kategoriyi yeniden adlandır', g.name, g.id);
   if (!name || name === g.name) return;
   const oldPath = MatStore.groupPath(settings, g);
+  const wasDownloaded = !!g.lastWrittenAt;
   g.name = name;
   g.lastWrittenAt = '';
-  await saveAndWriteGroup(g, `Kategori "${name}" olarak adlandırıldı. Eski dosya (${oldPath}) diskte kalır; ANSYS'ten kaldırabilirsiniz.`);
+  await saveGroupChange(g, `Kategori "${name}" olarak adlandırıldı.` +
+    (wasDownloaded ? ` Eski dosya (İndirilenler/${oldPath}) diskte kalır; yeni adla indirmek için "indir"e basın.` : ''));
 }
 
 async function deleteGroup() {
@@ -426,14 +442,15 @@ async function setSort(key, dir) {
 
 async function removeEntries(uids) {
   const drop = new Set(uids);
-  const affected = settings.groups.filter((g) => g.members.some((u) => drop.has(u))).map((g) => g.id);
+  MatStore.markGroupsChanged(settings, uids);
   settings.library = settings.library.filter((m) => !drop.has(m.uid));
   settings.groups.forEach((g) => { g.members = g.members.filter((u) => !drop.has(u)); });
   uids.forEach((u) => selected.delete(u));
   await MatStore.save({ library: settings.library, groups: settings.groups });
-  if (settings.autoUpdate) await MatStore.writeAffected(settings, [], affected);
+  const writeMain = settings.autoUpdate && (settings.library.length || settings.lastWrittenAt);
+  if (writeMain) await MatStore.writeLibrary(settings);
   render();
-  UI.toast(`${uids.length} malzeme kütüphaneden kaldırıldı.` + (settings.autoUpdate ? ' ANSYS dosyaları güncellendi.' : ''));
+  UI.toast(`${uids.length} malzeme kütüphaneden kaldırıldı.` + (writeMain ? ' Ana ANSYS dosyası güncellendi.' : ''));
 }
 
 async function downloadSelected() {
@@ -484,16 +501,16 @@ $('rename-group').addEventListener('click', guard(renameGroup));
 $('delete-group').addEventListener('click', guard(deleteGroup));
 $('write-group').addEventListener('click', guard(writeActiveGroup));
 $('assign-new-name').addEventListener('input', () => { $('assign-new-radio').checked = true; });
+// "Vazgeç" gönderme düğmesi değildir; böylece Enter her zaman onay düğmesini çalıştırır.
+document.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', () => b.closest('dialog').close()));
 $('download-selected').addEventListener('click', guard(downloadSelected));
 $('remove-selected').addEventListener('click', guard(() => {
   if (confirm(`${selected.size} malzeme kütüphaneden (ve tüm kategorilerden) kaldırılsın mı?`)) return removeEntries([...selected]);
 }));
 $('write-library').addEventListener('click', guard(async () => {
-  const paths = await MatStore.writeAffected(settings);
+  const path = await MatStore.writeLibrary(settings);
   render();
-  UI.toast(paths.length > 1
-    ? `Ana kütüphane ve ${paths.length - 1} kategori dosyası güncellendi (İndirilenler/${MatStore.sanitizeFolder(settings.folder) || ''}).`
-    : `ANSYS kütüphane dosyası güncellendi: İndirilenler/${paths[0]}`);
+  UI.toast(`ANSYS kütüphane dosyası güncellendi: İndirilenler/${path}`);
 }));
 $('folder').addEventListener('input', updatePathPreview);
 $('file-name').addEventListener('input', updatePathPreview);

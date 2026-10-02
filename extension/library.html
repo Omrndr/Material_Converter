@@ -56,8 +56,8 @@
             <button id="new-group" class="btn ghost small-btn" data-icon="plus" title="Yeni kategori oluştur">Yeni</button>
           </div>
           <ul id="group-list" class="group-list"></ul>
-          <p class="muted small sidebar-note">Her kategori, kendi adını taşıyan ayrı bir ANSYS kütüphane dosyası olarak kaydedilir.
-            Malzemeleri listeden seçip <b>Kategoriye ekle</b> ile gruplayın.</p>
+          <p class="muted small sidebar-note">Malzemeleri listeden seçip <b>Kategoriye ekle</b> ile gruplayın. Kategori dosyaları otomatik indirilmez:
+            kategoriyi açıp <b>Kategoriyi ANSYS kütüphanesi olarak indir</b>'e bastığınızda, kategorinin adını taşıyan ayrı bir dosya oluşur.</p>
         </aside>
         <div class="card list-card">
           <div id="group-head" class="group-head" hidden>
@@ -149,7 +149,7 @@
           <label for="file-name">Dosya adı</label>
           <input id="file-name" type="text">
           <span></span>
-          <label class="check"><input type="checkbox" id="auto"> Malzeme eklendiğinde veya kaldırıldığında dosyayı otomatik güncelle (önerilir)</label>
+          <label class="check"><input type="checkbox" id="auto"> Malzeme eklendiğinde veya kaldırıldığında ana kütüphane dosyasını otomatik güncelle (önerilir; kategori dosyaları hariç)</label>
           <span></span>
           <div class="path-line">Dosya şuraya kaydedilecek: <code id="path-preview"></code></div>
         </div>
@@ -166,8 +166,9 @@
           <li>Listenin en altındaki boş satırın <b>Location</b> sütunundaki <b>…</b> düğmesiyle şu dosyayı seçin:
             <code id="setup-path"></code></li>
           <li>Bundan sonra eklediğiniz malzemeler aynı dosyaya yazılır; ANSYS'te kütüphaneyi yenilemeniz yeterlidir.</li>
-          <li>Oluşturduğunuz her <b>kategori</b> aynı klasöre kendi adıyla ayrı bir dosya olarak yazılır
-            (ör. <code>Alüminyum alaşımları.xml</code>). Bunları da aynı yolla ANSYS'e ayrı kütüphaneler olarak ekleyebilirsiniz.</li>
+          <li><b>Kategoriler</b> istediğiniz zaman, kategoriyi açıp <b>Kategoriyi ANSYS kütüphanesi olarak indir</b>'e basarak
+            aynı klasöre kendi adıyla ayrı bir dosya olarak indirilir (ör. <code>Alüminyum alaşımları.xml</code>); otomatik indirilmez.
+            Bu dosyaları da aynı yolla ANSYS'e ayrı kütüphaneler olarak ekleyebilirsiniz.</li>
         </ol>
         <p class="muted small">Menü adları ANSYS sürümüne göre küçük farklılıklar gösterebilir. Dosyayı tek seferlik içe aktarmak için
           <i>File → Import Engineering Data</i> da kullanılabilir.</p>
@@ -196,7 +197,7 @@
       <input id="assign-new-name" type="text" placeholder="Kategori adı, ör. Alüminyum alaşımları" maxlength="80">
       <div id="assign-error" class="form-error" hidden></div>
       <div class="dialog-actions">
-        <button value="cancel" class="btn" formnovalidate>Vazgeç</button>
+        <button type="button" class="btn" data-close>Vazgeç</button>
         <button id="assign-confirm" value="ok" class="btn primary">Ekle</button>
       </div>
     </form>
@@ -210,7 +211,7 @@
       <input id="name-input" type="text" maxlength="80">
       <div id="name-error" class="form-error" hidden></div>
       <div class="dialog-actions">
-        <button value="cancel" class="btn" formnovalidate>Vazgeç</button>
+        <button type="button" class="btn" data-close>Vazgeç</button>
         <button id="name-confirm" value="ok" class="btn primary">Kaydet</button>
       </div>
     </form>

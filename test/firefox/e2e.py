@@ -19,6 +19,7 @@ import xml.etree.ElementTree as ET
 from selenium import webdriver
 from selenium.webdriver.common.action_chains import ActionChains
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.firefox.options import Options
 from selenium.webdriver.firefox.service import Service
 
@@ -264,41 +265,61 @@ def main():
             return d.execute_script('''return [...document.querySelectorAll('.group-item')].map(b =>
                 [b.querySelector('.name').textContent, b.querySelector('.n').textContent, b.classList.contains('active')])''')
 
+        def type_enter(element_id, text):
+            # Gerçek klavye girişi: metni yaz ve Enter'a bas.
+            el = d.find_element(By.ID, element_id)
+            el.clear()
+            el.send_keys(text + Keys.ENTER)
+            time.sleep(1.2)
+
+        def dialog_open(element_id):
+            return d.execute_script("return document.getElementById(arguments[0]).open", element_id)
+
+        kdir = os.path.join(downloads, 'ANSYS', 'Kutuphane')
         js("document.getElementById('select-all').click();")
         js("document.getElementById('assign-group').click();")
-        check(d.execute_script("return document.getElementById('assign-dialog').open"), '"Kategoriye ekle" penceresi açıldı')
-        js('''const i = document.getElementById('assign-new-name'); i.value = 'Test grubu'; i.dispatchEvent(new Event('input'));
-              document.getElementById('assign-confirm').click();''')
-        check(not d.execute_script("return document.getElementById('assign-dialog').open"), 'pencere kapandı')
+        check(dialog_open('assign-dialog'), '"Kategoriye ekle" penceresi açıldı')
+        type_enter('assign-new-name', 'Test grubu')
+        check(not dialog_open('assign-dialog'), 'Enter tuşu kategoriyi oluşturdu ve pencereyi kapattı')
         check(['Test grubu', '1', False] in groups(), 'yeni kategori yan panelde: ' + str(groups()))
-        gfile = os.path.join(downloads, 'ANSYS', 'Kutuphane', 'Test grubu.xml')
-        check(os.path.exists(gfile) and lib_names(gfile) == (['Test Steel'], 'Kategori: Test grubu'),
-              'kategori kendi adını taşıyan ANSYS dosyasına yazıldı')
-        check('Test grubu' in rows()[0]['status'] or d.execute_script("return document.querySelector('.group-chips').textContent").strip() == 'Test grubu',
+        gfile = os.path.join(kdir, 'Test grubu.xml')
+        check(not os.path.exists(gfile), 'kategori dosyası otomatik indirilmedi')
+        check(d.execute_script("return document.querySelector('.group-chips').textContent").strip() == 'Test grubu',
               'malzeme satırında kategori etiketi görünüyor')
 
-        # Aynı adla ikinci kategori engellenir
+        # Aynı adla ikinci kategori engellenir (Enter ile)
         js("document.getElementById('new-group').click();")
-        js('''document.getElementById('name-input').value = 'test GRUBU'; document.getElementById('name-confirm').click();''')
-        check(d.execute_script("return document.getElementById('name-dialog').open") and
-              'zaten var' in d.find_element(By.ID, 'name-error').text, 'aynı adlı kategori engellendi')
-        js("document.getElementById('name-dialog').close();")
+        type_enter('name-input', 'test GRUBU')
+        check(dialog_open('name-dialog') and 'zaten var' in d.find_element(By.ID, 'name-error').text, 'aynı adlı kategori engellendi')
+        d.find_element(By.ID, 'name-input').send_keys(Keys.ESCAPE)
+        time.sleep(0.5)
+        check(not dialog_open('name-dialog'), 'Esc ile pencere kapandı')
 
-        # Kategoriyi aç, yeniden adlandır
+        # Kategoriyi aç: dosya ancak "indir" düğmesiyle oluşur
         js("[...document.querySelectorAll('.group-item')].find(b => b.textContent.includes('Test grubu')).click();")
         check(d.find_element(By.ID, 'group-head').is_displayed() and d.find_element(By.ID, 'group-title').text == 'Test grubu',
-              'kategori seçilince başlığı ve dosya yolu görünüyor')
-        js("document.getElementById('rename-group').click();")
-        js('''document.getElementById('name-input').value = 'Seçilmiş çelikler'; document.getElementById('name-confirm').click();''')
-        rfile = os.path.join(downloads, 'ANSYS', 'Kutuphane', 'Seçilmiş çelikler.xml')
-        check(d.find_element(By.ID, 'group-title').text == 'Seçilmiş çelikler' and os.path.exists(rfile),
-              'kategori yeniden adlandırıldı ve yeni adla dosyaya yazıldı')
+              'kategori seçilince başlığı görünüyor')
+        check('Henüz indirilmedi' in d.find_element(By.ID, 'group-meta').text, 'başlıkta "Henüz indirilmedi" yazıyor')
+        js("document.getElementById('write-group').click();")
+        check(os.path.exists(gfile) and lib_names(gfile) == (['Test Steel'], 'Kategori: Test grubu'),
+              '"indir" düğmesiyle kategori kendi adını taşıyan ANSYS dosyasına yazıldı')
+        check('Güncel' in d.find_element(By.ID, 'group-meta').text, 'başlıkta "Güncel" yazıyor')
 
-        # Kategoriden çıkar: malzeme kütüphanede kalır, boşalan kategori dosyası güncellenir
+        # Yeniden adlandır (Enter ile): yeni adla dosya otomatik oluşmaz
+        js("document.getElementById('rename-group').click();")
+        type_enter('name-input', 'Seçilmiş çelikler')
+        rfile = os.path.join(kdir, 'Seçilmiş çelikler.xml')
+        check(d.find_element(By.ID, 'group-title').text == 'Seçilmiş çelikler' and not os.path.exists(rfile),
+              'kategori yeniden adlandırıldı, dosya otomatik indirilmedi')
+        js("document.getElementById('write-group').click();")
+        check(os.path.exists(rfile), 'yeni adla elle indirildi')
+
+        # Kategoriden çıkar: dosya otomatik değişmez, "güncel değil" uyarısı çıkar
         js("document.getElementById('select-all').click();")
         js("document.getElementById('unassign-group').click();")
-        check(rows() == [] and lib_names(rfile)[0] == [], 'kategoriden çıkarıldı; boşalan kategori dosyası güncellendi')
-        js("document.querySelector('.group-item[data-group=\"\"]').click();")
+        check(rows() == [] and lib_names(rfile)[0] == ['Test Steel'], 'kategoriden çıkarıldı; dosya otomatik değişmedi')
+        check('güncel değil' in d.find_element(By.ID, 'group-meta').text, 'başlıkta "İndirilen dosya güncel değil" uyarısı var')
+        js("document.querySelectorAll('.group-item')[0].click();")
         check([x['name'] for x in rows()] == ['Test Steel'], 'malzeme kütüphanede kalmaya devam ediyor')
 
         # Kategoriyi sil (onay penceresi)
