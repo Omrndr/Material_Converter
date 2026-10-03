@@ -4,7 +4,7 @@ Araç çubuğu düğmesine gerçek fare tıklaması yapılır (activeTab izni b�
 "Kütüphaneye ekle" vb. düğmelere basılır, indirilen dosyalar kontrol edilir. www.matweb.com istekleri
 yerel sahte sunucuya (fake_matweb.py) yönlendirilir; internet erişimi gerekmez.
 
-Gereksinimler: Firefox (>=140), geckodriver, Xvfb (ekransız ortamda), `pip install selenium`.
+Gereksinimler: Firefox (>=142), geckodriver, Xvfb (ekransız ortamda), `pip install selenium`.
     FIREFOX_BIN=/yol/firefox GECKODRIVER=/yol/geckodriver xvfb-run -a python test/firefox/e2e.py
 """
 import os
