@@ -38,7 +38,8 @@ test/
   run.mjs                Parser/writer/store tests in a real browser DOM (Playwright + Chromium)
   firefox/               End-to-end test in real Firefox (Selenium) + fake MatWeb server
   chromium/              End-to-end test of the Chrome/Edge package in real Chromium
-docs/screenshots/        Images used in the README
+docs/screenshots/        Plain interface screenshots (2x)
+store/                   Store listing texts; images/ holds the promo images also used in the README
 ```
 
 ## How it works
